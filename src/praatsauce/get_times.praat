@@ -16,7 +16,7 @@ if .useTextGrid = 1
 	To Matrix
 	matrixID = selected("Matrix")
 	start# = Get all values in row: 1
-	.start# = start# - (.windowLength / 2)
+	.start# = start# - .windowLength
 	select pointsID
 	plus matrixID
 	Remove
@@ -27,7 +27,7 @@ if .useTextGrid = 1
 	To Matrix
 	matrixID = selected("Matrix")
 	end# = Get all values in row: 1
-	.end# = end# + (.windowLength / 2)
+	.end# = end# + .windowLength
 	select pointsID
 	plus matrixID
 	Remove

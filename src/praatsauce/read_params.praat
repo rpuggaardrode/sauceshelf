@@ -49,8 +49,6 @@ maxNumFormantsID = Search column: "variable", "maxNumFormants"
 .maxNumFormants = Get value: maxNumFormantsID, "input"
 preEmphFromID = Search column: "variable", "preEmphFrom"
 .preEmphFrom = Get value: preEmphFromID, "input"
-formantSmoothingID = Search column: "variable", "formantSmoothing"
-.formantSmoothing = Get value: formantSmoothingID, "input"
 f1refID = Search column: "variable", "f1ref"
 .f1ref = Get value: f1refID, "input"
 f2refID = Search column: "variable", "f2ref"
@@ -80,13 +78,29 @@ if .intervalEquidistant + .intervalFixed = 0
 exitScript: "Either intervalEquidistant or intervalFixed in the params file ";
 	... "should contain a number above 0."
 endif
+
 if .intervalEquidistant > 0 & .intervalFixed > 0
 exitScript: "Either intervalEquidistant or intervalFixed in the params file ";
 	... "should be 0."
 endif
 
+if .maxNumFormants < 3
+exitScript: "maxNumFormants should be 3 or more"
+endif
+
 .measureFormants = .formant + .harmonicAmplitude + .harmonicAmplitudeUncorrected +
   ... .bw + .slope + .slopeUncorrected
+
+.measurePitch = .pitch + .harmonicAmplitude + .harmonicAmplitudeUncorrected +
+  ... .slope + .slopeUncorrected
+
+.spectralMeasures = .harmonicAmplitude + .harmonicAmplitudeUncorrected +
+  ... .slope + .slopeUncorrected + .cpp
+
+.measureHarmonics = .harmonicAmplitude + .harmonicAmplitudeUncorrected +
+  ... .slope + .slopeUncorrected
+
+.measureSlope = .slope + .slopeUncorrected
 
 filedelete "'outputDir$''outputFile$'"
 

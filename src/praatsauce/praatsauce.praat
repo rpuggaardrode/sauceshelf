@@ -1,6 +1,8 @@
 include read_params.praat
 include get_times.praat
 include get_formants.praat
+include get_pitch.praat
+include get_spectralMeasures.praat
 
 @params: "params.csv"
 
@@ -43,12 +45,26 @@ for thisFile from 1 to numFile
 		endif
 		Extract part: times.start# [int], times.end# [int], "rectangular", 1, 0
 		snippetID = selected("Sound")
+		
+		## Need to get times# in a different way if formants are not measured
+		## Same with numFrames
+
 		if params.measureFormants <> 0 
 			@fmt: params.bw, timeStep, params.maxNumFormants, 
 				... params.maxFormantHz, params.windowLength, 
 				... params.preEmphFrom
 		endif
 
+		if params.measurePitch <> 0
+			@pitch: timeStep, params.f0min, params.f0max, fmt.times#
+		endif
+
+		if params.spectralMeasures <> 0
+			@spec: params.windowLength, timeStep, fmt.numFrames, fmt.times#,
+				... params.measureHarmonics, params.cpp, 
+				... params.measureSlope, params.f0min, params.f0max,
+				... pitch.f0#, fmt.f1#, fmt.f2#, fmt.f3#
+		endif
 	endfor
 endfor
 
@@ -57,4 +73,7 @@ appendInfoLine: times.end#
 appendInfoLine: times.numIntervals
 appendInfoLine: times.labs$ [1]
 appendInfoLine: timeStep
+appendInfoLine: fmt.times#
 appendInfoLine: fmt.b1#
+appendInfoLine: pitch.f0#
+appendInfoLine: spec.h1a2u#
