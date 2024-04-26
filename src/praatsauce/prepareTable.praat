@@ -13,5 +13,19 @@ for r from 1 to nRow
 	Set string value: r, "x", .fileName$
 endfor
 
-endproc
+results$ = List: 0
+Create Strings from tokens: "results", results$, "'newline$'"
+stringsID = selected("Strings")
+Remove string: 1
+Replace all: "$", "\n", 0, "regular expressions"
 
+results$# = List all strings
+writeFile: "test.txt", results$#
+
+plus tableID
+plus torID
+plus tmatrixID
+plus finalMatrixID
+Remove
+
+endproc
