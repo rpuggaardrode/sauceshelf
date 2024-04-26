@@ -4,6 +4,11 @@ include get_formants.praat
 include get_pitch.praat
 include get_spectralMeasures.praat
 include get_bwHawksMiller.praat
+include get_HNR.praat
+include combineMatrices.praat
+include resample.praat
+include extract_channel.praat
+include prepareTable.praat
 
 @params: "params.csv"
 
@@ -26,11 +31,11 @@ for thisFile from 1 to numFile
 	soundID = selected("Sound")
 
 	if params.resample16kHz = 1
-		execute resample.praat
+		@resample
 	endif
 
 	if params.channel <> 0
-		execute extract_channel.praat 'params.channel'
+		@extract_channel: params.channel
 	endif
 
 	fs = Get sampling frequency
@@ -85,14 +90,79 @@ for thisFile from 1 to numFile
 				... params.f0min, params.f0max,
 				... pitch.f0#, fmt.f1#, fmt.f2#, fmt.f3#, b1#, b2#, b3#, fs
 		endif
+
+		if params.hnr <> 0
+			@hnr: 500, timeStep, params.f0min, fmt.numFrames
+			hnr05# = hnr.res#
+			@hnr: 1500, timeStep, params.f0min, fmt.numFrames
+			hnr15# = hnr.res#
+			@hnr: 2500, timeStep, params.f0min, fmt.numFrames
+			hnr25# = hnr.res#
+			@hnr: 3500, timeStep, params.f0min, fmt.numFrames
+			hnr35# = hnr.res#
+		endif
+	
+	select snippetID
+	Remove
+
+	## Compile results
+
+	Create simple Matrix from values: "results", { fmt.times# }
+
+	if params.pitch <> 0
+		@combineMatrices: { pitch.f0# }
+	endif
+	if params.formant <> 0
+		@combineMatrices: { fmt.f1#, fmt.f2#, fmt.f3# }
+	endif
+	if params.harmonicAmplitude <> 0
+		@combineMatrices: { spec.h1c#, spec.h2c#, spec.h4c#, spec.a1c#, 
+			... spec.a2c#, spec.a3c#, spec.h2ku#, spec.h5ku# }
+	endif
+	if params.harmonicAmplitudeUncorrected <> 0
+		@combineMatrices: { spec.h1u#, spec.h2u#, spec.h4u#, spec.a1u#, 
+			... spec.a2u#, spec.a3u# }
+	endif
+	if params.bw <> 0
+		@combineMatrices: { b1#, b2#, b3# }
+	endif
+	if params.slope <> 0
+		@combineMatrices: { spec.h1h2c#, spec.h2h4c#, spec.h1a1c#, spec.h1a2c#, 
+			... spec.h1a3c#, spec.h2kh5ku# }
+	endif
+	if params.slopeUncorrected <>0
+		@combineMatrices: { spec.h1h2u#, spec.h2h4u#, spec.h1a1u#, spec.h1a2u#, 
+			... spec.h1a3u# }
+	endif
+	if params.cpp <> 0
+		@combineMatrices: { spec.cpp# }
+	endif
+	if params.hnr <> 0
+		@combineMatrices: { hnr05#, hnr15#, hnr25#, hnr35# }
+	endif
+
+	@prepareTable: thisWav$
+
 	endfor
+
+	select soundID
+	Remove
+
 endfor
 
-writeInfoLine: times.start#
-appendInfoLine: times.end#
-appendInfoLine: times.numIntervals
-appendInfoLine: times.labs$ [1]
-appendInfoLine: timeStep
-appendInfoLine: fmt.times#
-appendInfoLine: pitch.f0#
-appendInfoLine: b3#
+select wavsListID
+if params.useTextGrid = 1
+	plus tgListID
+endif
+Remove
+
+#Create simple Matrix from values: "results", { fmt.times#, pitch.f0#, fmt.f1#, fmt.f2#, 
+#	... fmt.f3#, b1#, b2#, b3#, spec.h1u#, spec.h2u#, spec.h4u#, spec.twoku#, 
+#	... spec.fiveku#, spec.a1u#, spec.a2u#, spec.a3u#, spec.h1h2u#, spec.h2h4u#,
+#	... spec.h2kh5ku#, spec.h1c#, spec.h2c#, spec.h4c#, spec.a1c#, spec.a2c#, 
+#	... spec.a3c#, spec.h1h2c#, spec.h2h4c#, spec.h1a1c#, spec.h1a2c#, spec.h1a3c#,
+#	... spec.cpp#, hnr05#, hnr15#, hnr25#, hnr35# }
+#Transpose
+#To TableOfReal
+#To Table: "rowLabel"
+#Remove column: "rowLabel"

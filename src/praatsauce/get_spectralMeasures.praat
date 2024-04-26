@@ -1,8 +1,6 @@
-## Next step: implement corrections, these are all uncorrected
-
 include correctIseli.praat
 
-procedure spec: .windowLength, .timeStep, .numFrames, .times#, .measureHarmonics, 
+procedure spec: .windowLength, .timeStep, .numFrames, .times#, .measureHarmonics,
 	... .measureCPP, .measureSlope, .measureSlopeUncorrected,
 	... .f0min, .f0max, .f0#, .f1#, .f2#, .f3#, .b1#, .b2#, .b3#, .fs
 
@@ -17,8 +15,8 @@ if .measureHarmonics <> 0
 	.a1u# = zero# (.numFrames)
 	.a2u# = zero# (.numFrames)
 	.a3u# = zero# (.numFrames)
-	.twoku# = zero# (.numFrames)
-	.fiveku# = zero# (.numFrames)
+	.h2ku# = zero# (.numFrames)
+	.h5ku# = zero# (.numFrames)
 
 	lowerbh1# = .f0# - (.f0# / 10)
 	upperbh1# = .f0# + (.f0# / 10)
@@ -35,7 +33,7 @@ if .measureHarmonics <> 0
 	upperba3# = .f3# + (.f3# * 0.1)
 endif
 
-if .measureCPP <> 0 
+if .measureCPP <> 0
 	.cpp# = zero# (.numFrames)
 endif
 
@@ -48,14 +46,14 @@ for frame from 1 to .numFrames
 	select spectrumID
 	To PowerCepstrum
 	cepstrumID = selected("PowerCepstrum")
-	
-	## is there any particular reason why our trend is 'straight' and not 
+
+	## is there any particular reason why our trend is 'straight' and not
 	## 'exponential decay'? I think this is a matter of whether CPP is determined
 	## from a linear regression on a linear scale or log scale
 	## the documentation is in favor of exponential decay
 
 	if .measureCPP <> 0
-		.cpp# [frame] = Get peak prominence: .f0min, .f0max, "parabolic", 0.001, 
+		.cpp# [frame] = Get peak prominence: .f0min, .f0max, "parabolic", 0.001,
 			... 0, "Straight", "Robust"
 	endif
 
@@ -67,21 +65,21 @@ for frame from 1 to .numFrames
 		peakFreq = 1 / peakQuef
 
 		select ltasID
-		.twoku# [frame] = Get maximum: (2000 - peakFreq), (2000 + peakFreq), "cubic"
-		.fiveku# [frame] = Get maximum: (5000 - peakFreq), (5000 + peakFreq), "cubic"
+		.h2ku# [frame] = Get maximum: (2000 - peakFreq), (2000 + peakFreq), "cubic"
+		.h5ku# [frame] = Get maximum: (5000 - peakFreq), (5000 + peakFreq), "cubic"
 
 		if (.f0# [frame] <> undefined)
-			.h1u# [frame] = Get maximum: lowerbh1# [frame], upperbh1# [frame], 
+			.h1u# [frame] = Get maximum: lowerbh1# [frame], upperbh1# [frame],
 				... "none"
-			.h2u# [frame] = Get maximum: lowerbh2# [frame], upperbh2# [frame], 
+			.h2u# [frame] = Get maximum: lowerbh2# [frame], upperbh2# [frame],
 				... "none"
-			.h4u# [frame] = Get maximum: lowerbh4# [frame], upperbh4# [frame], 
+			.h4u# [frame] = Get maximum: lowerbh4# [frame], upperbh4# [frame],
 				... "none"
-			.a1u# [frame] = Get maximum: lowerba1# [frame], upperba1# [frame], 
+			.a1u# [frame] = Get maximum: lowerba1# [frame], upperba1# [frame],
 				... "none"
-			.a2u# [frame] = Get maximum: lowerba2# [frame], upperba2# [frame], 
+			.a2u# [frame] = Get maximum: lowerba2# [frame], upperba2# [frame],
 				... "none"
-			.a3u# [frame] = Get maximum: lowerba3# [frame], upperba3# [frame], 
+			.a3u# [frame] = Get maximum: lowerba3# [frame], upperba3# [frame],
 				... "none"
 		else
 			.h1u# [frame] = 0
@@ -147,7 +145,12 @@ if .measureSlopeUncorrected <> 0
 	.h1a1u# = .h1u# - .a1u#
 	.h1a2u# = .h1u# - .a2u#
 	.h1a3u# = .h1u# - .a3u#
-	.h2kh5ku# = .twoku# - .fiveku#
+	.h2kh5ku# = .h2ku# - .h5ku#
 endif
+
+select spectrogramID
+Remove
+
+select snippetID
 
 endproc

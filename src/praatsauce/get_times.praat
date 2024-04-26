@@ -39,7 +39,7 @@ if .useTextGrid = 1
 	endfor
 	Remove
 else
-	numIntervals = 1
+	.numIntervals = 1
 	select soundID
 	start = Get start time
 	.start# = { start }
