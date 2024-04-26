@@ -92,7 +92,7 @@ endif
   ... .bw + .slope + .slopeUncorrected
 
 .measurePitch = .pitch + .harmonicAmplitude + .harmonicAmplitudeUncorrected +
-  ... .slope + .slopeUncorrected
+  ... .slope + .slopeUncorrected + .bw
 
 .spectralMeasures = .harmonicAmplitude + .harmonicAmplitudeUncorrected +
   ... .slope + .slopeUncorrected + .cpp
@@ -101,6 +101,15 @@ endif
   ... .slope + .slopeUncorrected
 
 .measureSlope = .slope + .slopeUncorrected
+
+.requireBandwidths = .bwHawksMiller + .bw + .measureHarmonics
+
+if .bwHawksMiller = 0
+  .measureBandwidths = .bw + .measureHarmonics
+else
+  .measureBandwidths = 0
+endif
+
 
 filedelete "'outputDir$''outputFile$'"
 

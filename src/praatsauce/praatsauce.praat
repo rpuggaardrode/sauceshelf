@@ -3,6 +3,7 @@ include get_times.praat
 include get_formants.praat
 include get_pitch.praat
 include get_spectralMeasures.praat
+include get_bwHawksMiller.praat
 
 @params: "params.csv"
 
@@ -31,6 +32,9 @@ for thisFile from 1 to numFile
 	if params.channel <> 0
 		execute extract_channel.praat 'params.channel'
 	endif
+
+	fs = Get sampling frequency
+
 	@times: thisWav$, params.inputDir$, params.includeTheseLabels$, 
 		... params.useTextGrid, params.intervalTier, params.windowLength
 	
@@ -50,7 +54,7 @@ for thisFile from 1 to numFile
 		## Same with numFrames
 
 		if params.measureFormants <> 0 
-			@fmt: params.bw, timeStep, params.maxNumFormants, 
+			@fmt: params.measureBandwidths, timeStep, params.maxNumFormants, 
 				... params.maxFormantHz, params.windowLength, 
 				... params.preEmphFrom
 		endif
@@ -59,11 +63,27 @@ for thisFile from 1 to numFile
 			@pitch: timeStep, params.f0min, params.f0max, fmt.times#
 		endif
 
+		if params.requireBandwidths <> 0
+			if params.bwHawksMiller = 0
+				b1# = fmt.b1#
+				b2# = fmt.b2#
+				b3# = fmt.b3#
+			else
+				@bwHawksMiller: pitch.f0#, fmt.f1#, fmt.numFrames
+				b1# = bwHawksMiller.res#
+				@bwHawksMiller: pitch.f0#, fmt.f2#, fmt.numFrames
+				b2# = bwHawksMiller.res#
+				@bwHawksMiller: pitch.f0#, fmt.f3#, fmt.numFrames
+				b3# = bwHawksMiller.res#
+			endif
+		endif
+
 		if params.spectralMeasures <> 0
 			@spec: params.windowLength, timeStep, fmt.numFrames, fmt.times#,
 				... params.measureHarmonics, params.cpp, 
-				... params.measureSlope, params.f0min, params.f0max,
-				... pitch.f0#, fmt.f1#, fmt.f2#, fmt.f3#
+				... params.measureSlope, params.slopeUncorrected,
+				... params.f0min, params.f0max,
+				... pitch.f0#, fmt.f1#, fmt.f2#, fmt.f3#, b1#, b2#, b3#, fs
 		endif
 	endfor
 endfor
@@ -74,6 +94,5 @@ appendInfoLine: times.numIntervals
 appendInfoLine: times.labs$ [1]
 appendInfoLine: timeStep
 appendInfoLine: fmt.times#
-appendInfoLine: fmt.b1#
 appendInfoLine: pitch.f0#
-appendInfoLine: spec.h1a2u#
+appendInfoLine: b3#

@@ -1,21 +1,24 @@
 ## Next step: implement corrections, these are all uncorrected
 
+include correctIseli.praat
+
 procedure spec: .windowLength, .timeStep, .numFrames, .times#, .measureHarmonics, 
-	... .measureCPP, .measureSlope, .f0min, .f0max, .f0#, .f1#, .f2#, .f3#
+	... .measureCPP, .measureSlope, .measureSlopeUncorrected,
+	... .f0min, .f0max, .f0#, .f1#, .f2#, .f3#, .b1#, .b2#, .b3#, .fs
 
 snippetID = selected("Sound")
 To Spectrogram: .windowLength, 5500, .timeStep, 20, "Gaussian"
 spectrogramID = selected("Spectrogram")
 
 if .measureHarmonics <> 0
-	.h1db# = zero# (.numFrames)
-	.h2db# = zero# (.numFrames)
-	.h4db# = zero# (.numFrames)
-	.a1db# = zero# (.numFrames)
-	.a2db# = zero# (.numFrames)
-	.a3db# = zero# (.numFrames)
-	.twokdb# = zero# (.numFrames)
-	.fivekdb# = zero# (.numFrames)
+	.h1u# = zero# (.numFrames)
+	.h2u# = zero# (.numFrames)
+	.h4u# = zero# (.numFrames)
+	.a1u# = zero# (.numFrames)
+	.a2u# = zero# (.numFrames)
+	.a3u# = zero# (.numFrames)
+	.twoku# = zero# (.numFrames)
+	.fiveku# = zero# (.numFrames)
 
 	lowerbh1# = .f0# - (.f0# / 10)
 	upperbh1# = .f0# + (.f0# / 10)
@@ -64,29 +67,29 @@ for frame from 1 to .numFrames
 		peakFreq = 1 / peakQuef
 
 		select ltasID
-		.twokdb# [frame] = Get maximum: (2000 - peakFreq), (2000 + peakFreq), "cubic"
-		.fivekdb# [frame] = Get maximum: (5000 - peakFreq), (5000 + peakFreq), "cubic"
+		.twoku# [frame] = Get maximum: (2000 - peakFreq), (2000 + peakFreq), "cubic"
+		.fiveku# [frame] = Get maximum: (5000 - peakFreq), (5000 + peakFreq), "cubic"
 
 		if (.f0# [frame] <> undefined)
-			.h1db# [frame] = Get maximum: lowerbh1# [frame], upperbh1# [frame], 
+			.h1u# [frame] = Get maximum: lowerbh1# [frame], upperbh1# [frame], 
 				... "none"
-			.h2db# [frame] = Get maximum: lowerbh2# [frame], upperbh2# [frame], 
+			.h2u# [frame] = Get maximum: lowerbh2# [frame], upperbh2# [frame], 
 				... "none"
-			.h4db# [frame] = Get maximum: lowerbh4# [frame], upperbh4# [frame], 
+			.h4u# [frame] = Get maximum: lowerbh4# [frame], upperbh4# [frame], 
 				... "none"
-			.a1db# [frame] = Get maximum: lowerba1# [frame], upperba1# [frame], 
+			.a1u# [frame] = Get maximum: lowerba1# [frame], upperba1# [frame], 
 				... "none"
-			.a2db# [frame] = Get maximum: lowerba2# [frame], upperba2# [frame], 
+			.a2u# [frame] = Get maximum: lowerba2# [frame], upperba2# [frame], 
 				... "none"
-			.a3db# [frame] = Get maximum: lowerba3# [frame], upperba3# [frame], 
+			.a3u# [frame] = Get maximum: lowerba3# [frame], upperba3# [frame], 
 				... "none"
 		else
-			.h1db# [frame] = 0
-			.h2db# [frame] = 0
-			.h4db# [frame] = 0
-			.a1db# [frame] = 0
-			.a2db# [frame] = 0
-			.a3db# [frame] = 0
+			.h1u# [frame] = 0
+			.h2u# [frame] = 0
+			.h4u# [frame] = 0
+			.a1u# [frame] = 0
+			.a2u# [frame] = 0
+			.a3u# [frame] = 0
 		endif
 
 	endif
@@ -98,13 +101,53 @@ for frame from 1 to .numFrames
 
 endfor
 
+## Not sure if I understand how this theoretically works for H2k and H5k
+## Legacy praatsauce corrects for H2k by using the third formant
+
+if .measureHarmonics <> 0
+	@correctIseli: .f0#, .f1#, .b1#, .fs
+	.h1c# = .h1u# - correctIseli.res#
+	@correctIseli: .f0#, .f2#, .b2#, .fs
+	.h1c# = .h1c# - correctIseli.res#
+	@correctIseli: 2 * .f0#, .f1#, .b1#, fs
+	.h2c# = .h2u# - correctIseli.res#
+	@correctIseli: 2 * .f0#, .f2#, .b2#, fs
+	.h2c# = .h2c# - correctIseli.res#
+	@correctIseli: 4 * .f0#, .f1#, .b1#, fs
+	.h4c# = .h4u# - correctIseli.res#
+	@correctIseli: 4 * .f0#, .f2#, .b2#, fs
+	.h4c# = .h4c# - correctIseli.res#
+	@correctIseli: .f1#, .f1#, .b1#, fs
+	.a1c# = .a1u# - correctIseli.res#
+	@correctIseli: .f1#, .f2#, .b2#, fs
+	.a1c# = .a1c# - correctIseli.res#
+	@correctIseli: .f2#, .f1#, .b1#, fs
+	.a2c# = .a2u# - correctIseli.res#
+	@correctIseli: .f2#, .f2#, .b2#, fs
+	.a2c# = .a2c# - correctIseli.res#
+	@correctIseli: .f3#, .f1#, .b1#, fs
+	.a3c# = .a3u# - correctIseli.res#
+	@correctIseli: .f3#, .f2#, .b2#, fs
+	.a3c# = .a3c# - correctIseli.res#
+	@correctIseli: .f3#, .f3#, .b3#, fs
+	.a3c# = .a3c# - correctIseli.res#
+endif
+
 if .measureSlope <> 0
-	.h1h2u# = .h1db# - .h2db#
-	.h2h4u# = .h2db# - .h4db#
-	.h1a1u# = .h1db# - .a1db#
-	.h1a2u# = .h1db# - .a2db#
-	.h1a3u# = .h1db# - .a3db#
-	.h2kh5ku# = .twokdb# - .fivekdb#
+	.h1h2c# = .h1c# - .h2c#
+	.h2h4c# = .h2c# - .h4c#
+	.h1a1c# = .h1c# - .a1c#
+	.h1a2c# = .h1c# - .a2c#
+	.h1a3c# = .h1c# - .a3c#
+endif
+
+if .measureSlopeUncorrected <> 0
+	.h1h2u# = .h1u# - .h2u#
+	.h2h4u# = .h2u# - .h4u#
+	.h1a1u# = .h1u# - .a1u#
+	.h1a2u# = .h1u# - .a2u#
+	.h1a3u# = .h1u# - .a3u#
+	.h2kh5ku# = .twoku# - .fiveku#
 endif
 
 endproc
