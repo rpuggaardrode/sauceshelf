@@ -1,4 +1,4 @@
-procedure prepareTable: .fileName$
+procedure prepareTable: .fileName$, .outputDir$, .outputFile$
 
 finalMatrixID = selected("Matrix")
 Transpose
@@ -18,10 +18,13 @@ Create Strings from tokens: "results", results$, "'newline$'"
 stringsID = selected("Strings")
 Remove string: 1
 Replace all: "$", "\n", 0, "regular expressions"
+stringsRepID = selected("Strings")
 
 results$# = List all strings
-writeFile: "test.txt", results$#
+appendFile: "'.outputDir$''.outputFile$'", results$#
 
+select stringsID
+plus stringsRepID
 plus tableID
 plus torID
 plus tmatrixID

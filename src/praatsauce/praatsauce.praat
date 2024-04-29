@@ -8,9 +8,14 @@ include get_HNR.praat
 include combineMatrices.praat
 include resample.praat
 include extract_channel.praat
+include initiateTable.praat
 include prepareTable.praat
 
 @params: "params.csv"
+@initiateTable: params.pitch, params.formant, params.harmonicAmplitude, 
+	... params.harmonicAmplitudeUncorrected, params.bw, params.slope, 
+	... params.slopeUncorrected, params.cpp, params.hnr, params.outputDir$, 
+	... params.outputFile$
 
 Create Strings as file list: "wavs", params.inputDir$ + "*.wav"
 wavsListID = selected("Strings")
@@ -141,7 +146,7 @@ for thisFile from 1 to numFile
 		@combineMatrices: { hnr05#, hnr15#, hnr25#, hnr35# }
 	endif
 
-	@prepareTable: thisWav$
+	@prepareTable: thisWav$, params.outputDir$, params.outputFile$
 
 	endfor
 
@@ -155,14 +160,3 @@ if params.useTextGrid = 1
 	plus tgListID
 endif
 Remove
-
-#Create simple Matrix from values: "results", { fmt.times#, pitch.f0#, fmt.f1#, fmt.f2#, 
-#	... fmt.f3#, b1#, b2#, b3#, spec.h1u#, spec.h2u#, spec.h4u#, spec.twoku#, 
-#	... spec.fiveku#, spec.a1u#, spec.a2u#, spec.a3u#, spec.h1h2u#, spec.h2h4u#,
-#	... spec.h2kh5ku#, spec.h1c#, spec.h2c#, spec.h4c#, spec.a1c#, spec.a2c#, 
-#	... spec.a3c#, spec.h1h2c#, spec.h2h4c#, spec.h1a1c#, spec.h1a2c#, spec.h1a3c#,
-#	... spec.cpp#, hnr05#, hnr15#, hnr25#, hnr35# }
-#Transpose
-#To TableOfReal
-#To Table: "rowLabel"
-#Remove column: "rowLabel"
