@@ -1,7 +1,24 @@
 procedure fmt: .measureBandwidths, .timeStep, .maxN, .maxHz, 
-	... .windowLength, .preEmphFrom
+	... .windowLength, .preEmphFrom, .start, .end
 
+soundID = selected("Sound")
+dur = Get end time
+
+if .start > 0
+	start = .start - .windowLength + (.timeStep / 2)
+else
+	start = 0
+endif
+
+if .end < dur
+	end = .end + .windowLength + (.timeStep / 2)
+else
+	end = dur
+endif
+
+Extract part: start, end, "rectangular", 1, 1
 snippetID = selected("Sound")
+
 To Formant (burg): .timeStep, .maxN, .maxHz, .windowLength, .preEmphFrom
 formantID = selected("Formant")
 .times# = List all frame times
@@ -20,8 +37,9 @@ endif
 
 select formantID
 plus tableID
+plus snippetID
 Remove
 
-select snippetID
+select soundID
 
 endproc

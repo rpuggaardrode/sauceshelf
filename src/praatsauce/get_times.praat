@@ -15,8 +15,7 @@ if .useTextGrid = 1
 	pointsID = selected("PointProcess")
 	To Matrix
 	matrixID = selected("Matrix")
-	start# = Get all values in row: 1
-	.start# = start# - .windowLength
+	.start# = Get all values in row: 1
 	select pointsID
 	plus matrixID
 	Remove
@@ -26,15 +25,14 @@ if .useTextGrid = 1
 	pointsID = selected("PointProcess")
 	To Matrix
 	matrixID = selected("Matrix")
-	end# = Get all values in row: 1
-	.end# = end# + .windowLength
+	.end# = Get all values in row: 1
 	select pointsID
 	plus matrixID
 	Remove
 
 	select tgID
 	for int from 1 to .numIntervals
-		labID = Get interval at time: .intervalTier, start# [int]
+		labID = Get interval at time: .intervalTier, .start# [int]
 		.labs$ [int] = Get label of interval: .intervalTier, labID
 	endfor
 	Remove
@@ -45,6 +43,7 @@ else
 	.start# = { start }
 	end = Get end time
 	.end# = { end }
+	.labs$ [1] = "x" 
 endif
 
 endproc

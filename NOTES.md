@@ -169,3 +169,7 @@ We get: 0.03481859410430832
 ### Thoughts
 
 All this to say that sampling different derived signals along the exact same grid in Praat is not at all straightforward, and Praat currently isn't making it easy for us to get around that. Especially because window sizes can't actually be specified directly, but are typically determined based on a minimum pitch value. We might want to use a larger-than-required window to calculate HNR just to make sure that samples are equally spaced, but the only way to increase the sample size is to reduce the minimum pitch, which will of course have unwanted consequences. One thing to discuss going forward is whether we just want to live with a slight (1--2 ms) displacement of measures. The displacement is predictable, but I would've been happier if it was a bit more straightforwardly predictable.
+
+### Interim solution
+
+So far I've solved this with zero padding in a way that should make sure that all results vectors are equally long and use **roughly** the same times.

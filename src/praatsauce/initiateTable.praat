@@ -1,7 +1,14 @@
 procedure initiateTable: .pitch, .formants, .harmonicAmplitude, .harmonicAmplitudeUncorrected,
-	... .bw, .slope, .slopeUncorrected, .cpp, .hnr, .outputDir$, .outputFile$
+	... .bw, .slope, .slopeUncorrected, .cpp, .hnr, .outputDir$, .outputFile$,
+	... .useTextGrid
 
-firstLine$ = "file t"
+firstLine$ = "file"
+
+if .useTextGrid <> 0
+	firstLine$ = firstLine$ + " label"
+endif
+
+firstLine$ = firstLine$ + " t"
 
 if .pitch <> 0
 	firstLine$ = firstLine$ + " f0"
@@ -43,6 +50,7 @@ Create Table with column names: "init", 0, firstLine$
 tableID = selected("Table")
 
 Save as tab-separated file: "'.outputDir$''.outputFile$'"
+select tableID
 Remove
 
 endproc

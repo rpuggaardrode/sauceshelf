@@ -1,4 +1,4 @@
-procedure prepareTable: .fileName$, .outputDir$, .outputFile$
+procedure prepareTable: .fileName$, .outputDir$, .outputFile$, .useTextGrid, .lab$
 
 finalMatrixID = selected("Matrix")
 Transpose
@@ -12,6 +12,13 @@ nRow = Get number of rows
 for r from 1 to nRow
 	Set string value: r, "x", .fileName$
 endfor
+
+if .useTextGrid <> 0
+	Insert column: 2, "lab"
+	for r from 1 to nRow
+		Set string value: r, "lab", .lab$
+	endfor
+endif
 
 results$ = List: 0
 Create Strings from tokens: "results", results$, "'newline$'"

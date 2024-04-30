@@ -5,9 +5,11 @@ include get_pitch.praat
 include get_spectralMeasures.praat
 include get_bwHawksMiller.praat
 include get_HNR.praat
+include get_CPP.praat
 include combineMatrices.praat
 include resample.praat
 include extract_channel.praat
+include zeroPadding.praat
 include initiateTable.praat
 include prepareTable.praat
 
@@ -15,14 +17,14 @@ include prepareTable.praat
 @initiateTable: params.pitch, params.formant, params.harmonicAmplitude, 
 	... params.harmonicAmplitudeUncorrected, params.bw, params.slope, 
 	... params.slopeUncorrected, params.cpp, params.hnr, params.outputDir$, 
-	... params.outputFile$
+	... params.outputFile$, params.useTextGrid
 
 Create Strings as file list: "wavs", params.inputDir$ + "*.wav"
 wavsListID = selected("Strings")
 Sort
 numFile = Get number of strings
 
-if params.useTextGrid = 1
+if params.useTextGrid <> 0
 	Create Strings as file list: "grids", params.inputDir$ + "*.TextGrid"
 	tgListID = selected("Strings")
 	Sort
@@ -35,7 +37,7 @@ for thisFile from 1 to numFile
 	Read from file: params.inputDir$ + thisWav$
 	soundID = selected("Sound")
 
-	if params.resample16kHz = 1
+	if params.resample16kHz <> 0
 		@resample
 	endif
 
@@ -57,68 +59,130 @@ for thisFile from 1 to numFile
 		else
 			timeStep = params.intervalFixed
 		endif
-		Extract part: times.start# [int], times.end# [int], "rectangular", 1, 0
-		snippetID = selected("Sound")
+		#Extract part: times.start# [int], times.end# [int], "rectangular", 1, 0
+		#snippetID = selected("Sound")
 		
 		## Need to get times# in a different way if formants are not measured
 		## Same with numFrames
 
+		frameNums# = { 0 }
+
+		if params.measurePitch <> 0
+			@pitch: timeStep, params.f0min, params.f0max, times.start# [int],
+				... times.end# [int]
+			frameNums# = combine# (frameNums#, { pitch.numFrames })
+		endif
+
+
 		if params.measureFormants <> 0 
 			@fmt: params.measureBandwidths, timeStep, params.maxNumFormants, 
 				... params.maxFormantHz, params.windowLength, 
-				... params.preEmphFrom
+				... params.preEmphFrom, times.start# [int], times.end# [int]
+			frameNums# = combine# (frameNums#, { fmt.numFrames })
 		endif
 
+		if params.hnr <> 0
+			@hnr: 500, timeStep, params.f0min, times.start# [int], 
+				... times.end# [int]
+			hnr05# = hnr.res#
+			@hnr: 1500, timeStep, params.f0min, times.start# [int], 
+				... times.end# [int]
+			hnr15# = hnr.res#
+			@hnr: 2500, timeStep, params.f0min, times.start# [int], 
+				... times.end# [int]
+			hnr25# = hnr.res#
+			@hnr: 3500, timeStep, params.f0min, times.start# [int], 
+				... times.end# [int]
+			hnr35# = hnr.res#
+			frameNums# = combine# (frameNums#, { hnr.numFrames })
+		endif
+
+		if params.cpp <> 0
+			@cpp: timeStep, params.f0min, params.f0max, times.start# [int],
+				... times.end# [int]
+			frameNums# = combine# (frameNums#, { cpp.numFrames })
+		endif
+
+		mostFrames = max(frameNums#)
+
 		if params.measurePitch <> 0
-			@pitch: timeStep, params.f0min, params.f0max, fmt.times#
+			@zeroPadding: pitch.f0#, pitch.numFrames, mostFrames
+			f0# = zeroPadding.res#
+			if pitch.numFrames = mostFrames
+				times# = pitch.times#
+			endif
+		endif
+
+		if params.measureFormants <> 0
+			@zeroPadding: fmt.f1#, fmt.numFrames, mostFrames
+			f1# = zeroPadding.res#
+			@zeroPadding: fmt.f2#, fmt.numFrames, mostFrames
+			f2# = zeroPadding.res#
+			@zeroPadding: fmt.f3#, fmt.numFrames, mostFrames
+			f3# = zeroPadding.res#
+			if fmt.numFrames = mostFrames
+				times# = fmt.times#
+			endif
+		endif
+
+		if params.hnr <> 0
+			@zeroPadding: hnr05#, hnr.numFrames, mostFrames
+			hnr05# = zeroPadding.res#
+			@zeroPadding: hnr15#, hnr.numFrames, mostFrames
+			hnr15# = zeroPadding.res#
+			@zeroPadding: hnr25#, hnr.numFrames, mostFrames
+			hnr25# = zeroPadding.res#
+			@zeroPadding: hnr35#, hnr.numFrames, mostFrames
+			hnr35# = zeroPadding.res#
+			if hnr.numFrames = mostFrames
+				times# = hnr.times#
+			endif
+		endif
+
+		if params.cpp <> 0
+			@zeroPadding: cpp.res#, cpp.numFrames, mostFrames
+			cpp# = zeroPadding.res#
+			if cpp.numFrames = mostFrames
+				times# = cpp.times#
+			endif
 		endif
 
 		if params.requireBandwidths <> 0
 			if params.bwHawksMiller = 0
-				b1# = fmt.b1#
-				b2# = fmt.b2#
-				b3# = fmt.b3#
+				@zeroPadding: fmt.b1#, fmt.numFrames, mostFrames
+				b1# = zeroPadding.res#
+				@zeroPadding: fmt.b2#, fmt.numFrames, mostFrames
+				b2# = zeroPadding.res#
+				@zeroPadding: fmt.b3#, fmt.numFrames, mostFrames
+				b3# = zeroPadding.res#
 			else
-				@bwHawksMiller: pitch.f0#, fmt.f1#, fmt.numFrames
+				@bwHawksMiller: f0#, f1#, mostFrames
 				b1# = bwHawksMiller.res#
-				@bwHawksMiller: pitch.f0#, fmt.f2#, fmt.numFrames
+				@bwHawksMiller: f0#, f2#, mostFrames
 				b2# = bwHawksMiller.res#
-				@bwHawksMiller: pitch.f0#, fmt.f3#, fmt.numFrames
+				@bwHawksMiller: f0#, f3#, mostFrames
 				b3# = bwHawksMiller.res#
 			endif
 		endif
 
 		if params.spectralMeasures <> 0
-			@spec: params.windowLength, timeStep, fmt.numFrames, fmt.times#,
+			@spec: params.windowLength, timeStep, mostFrames, times#,
 				... params.measureHarmonics, params.cpp, 
 				... params.measureSlope, params.slopeUncorrected,
 				... params.f0min, params.f0max,
-				... pitch.f0#, fmt.f1#, fmt.f2#, fmt.f3#, b1#, b2#, b3#, fs
+				... f0#, f1#, f2#, f3#, b1#, b2#, b3#, fs,
+				... times.start# [int], times.end# [int]
 		endif
-
-		if params.hnr <> 0
-			@hnr: 500, timeStep, params.f0min, fmt.numFrames
-			hnr05# = hnr.res#
-			@hnr: 1500, timeStep, params.f0min, fmt.numFrames
-			hnr15# = hnr.res#
-			@hnr: 2500, timeStep, params.f0min, fmt.numFrames
-			hnr25# = hnr.res#
-			@hnr: 3500, timeStep, params.f0min, fmt.numFrames
-			hnr35# = hnr.res#
-		endif
-	
-	select snippetID
-	Remove
 
 	## Compile results
 
-	Create simple Matrix from values: "results", { fmt.times# }
+	Create simple Matrix from values: "results", { (round#(times# * 1000) / 1000) }
 
 	if params.pitch <> 0
-		@combineMatrices: { pitch.f0# }
+		@combineMatrices: { f0# }
 	endif
 	if params.formant <> 0
-		@combineMatrices: { fmt.f1#, fmt.f2#, fmt.f3# }
+		@combineMatrices: { f1#, f2#, f3# }
 	endif
 	if params.harmonicAmplitude <> 0
 		@combineMatrices: { spec.h1c#, spec.h2c#, spec.h4c#, spec.a1c#, 
@@ -140,13 +204,14 @@ for thisFile from 1 to numFile
 			... spec.h1a3u# }
 	endif
 	if params.cpp <> 0
-		@combineMatrices: { spec.cpp# }
+		@combineMatrices: { cpp# }
 	endif
 	if params.hnr <> 0
 		@combineMatrices: { hnr05#, hnr15#, hnr25#, hnr35# }
 	endif
 
-	@prepareTable: thisWav$, params.outputDir$, params.outputFile$
+	@prepareTable: thisWav$, params.outputDir$, params.outputFile$, params.useTextGrid,
+		... times.labs$ [int]
 
 	endfor
 
