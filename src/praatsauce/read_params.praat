@@ -1,6 +1,9 @@
-### Process params file
+### Process parameters file, output necessary variables
 
 procedure params: .file$
+
+## find each of the core parameters in the params.csv file and store them as
+## variables
 
 Read Table from comma-separated file: .file$
 inputDirID = Search column: "variable", "inputDir"
@@ -70,9 +73,15 @@ includeTheseLabelsID = Search column: "variable", "includeTheseLabels"
 
 Remove
 
+## add trailing slashes to the directory names since it doesn't matter if
+## they're doubled
+
 .inputDir$ = .inputDir$ + "/"
 .outputDir$ = .outputDir$ + "/"
 .tgDir$ = .tgDir$ + "/"
+
+## some sanity checks. should probably add more, these were the first that came
+## to mind
 
 if .intervalEquidistant + .intervalFixed = 0
 exitScript: "Either intervalEquidistant or intervalFixed in the params file ";
@@ -88,6 +97,10 @@ if .maxNumFormants < 3
 exitScript: "maxNumFormants should be 3 or more"
 endif
 
+## more general variables telling us whether formants, pitch, etc are required.
+## i.e even if the user doesn't want a pitch measure returned, it may still be
+## required to compute harmonic amplitudes if the user wants those, etc
+
 .measureFormants = .formant + .harmonicAmplitude + .harmonicAmplitudeUncorrected +
   ... .bw + .slope + .slopeUncorrected
 
@@ -95,21 +108,19 @@ endif
   ... .slope + .slopeUncorrected + .bw
 
 .spectralMeasures = .harmonicAmplitude + .harmonicAmplitudeUncorrected +
-  ... .slope + .slopeUncorrected + .cpp
-
-.measureHarmonics = .harmonicAmplitude + .harmonicAmplitudeUncorrected +
   ... .slope + .slopeUncorrected
 
 .measureSlope = .slope + .slopeUncorrected
 
-.requireBandwidths = .bwHawksMiller + .bw + .measureHarmonics
+.requireBandwidths = .bwHawksMiller + .bw + .spectralMeasures
 
 if .bwHawksMiller = 0
-  .measureBandwidths = .bw + .measureHarmonics
+  .measureBandwidths = .bw + .spectralMeasures
 else
   .measureBandwidths = 0
 endif
 
+## delete output file if it already exists
 
 filedelete "'outputDir$''outputFile$'"
 

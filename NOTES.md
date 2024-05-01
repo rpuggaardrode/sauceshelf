@@ -1,3 +1,51 @@
+## Differences from the previous version of PraatSauce
+
+* All parameters are passed in a csv file so we're getting rid of the complicated situation with a bunch of parameters windows. Should also make it easier to call from the command line
+
+* Much less of the work is done in the core `praatsauce` script, most of the labor is done in done in procedures in other scripts.
+
+* The user has more freedom over which measures to return. These are all options: pitch, formants, bandwidths, harmonic amplitudes, uncorrected harmonic amplitudes, slope measures, uncorrected slope measures, CPP, HNR, and intensity
+
+* There is now an option to calculate intensity
+
+* Using TextGrids is no longer a requirement but still an option. By default the entire sound file is being analyzed.
+
+* If using TextGrids, `skip_these_labels` argument has been replaced by `includeTheseLabels` argument, which by default is just any non-empty interval
+
+* If using TextGrids, there's currently no support for point tiers. (My intuition is that most people would extract time series these days)
+
+* When using TextGrids: Instead of creating pitch, formant objects, etc for the entire sound file, the relevant intervals are snipped out, and the signals are derived from those. To save time if people are processing only few intervals from very long sound files.
+  * Actually, a bit of time (roughly corresponding to an analysis window) is appended to the start and end of TextGrid intervals to avoid missing measurements at the beginning and end of intervals (see below)
+  
+* Instead of using Praat's default "time step" settings when deriving signals, we use the sampling frequency that users ask for in the parameters file. This speeds things up when users ask for fewer samples than Praat provides by default, and slows things down when users ask for more. In legacy PS this was dealt with by interpolating values in between calculated samples, now all samples that the user gets are actually derived from the audio.
+  * This has the (major) advantage that we can grab values as whole vectors instead of looping through time steps! I'm not sure this works entirely as intended when grabbing measures at equidistant points though, this is something to look into a bit more.
+  * Because of the opaque way that Praat determines the time of a measures (see below), this results in vectors that are of uneven length. This is fixed by appending zeroes to the start and end of these vectors to make sure they're of equal length. Following the overview below, this may result in time stamps that are a 1-2 ms off for some measures, but shouldn't be more than that. I tend to think this is fine.
+
+* It is no longer an option to use existing pitch or formant objects
+
+* Pitch and formant objects are no longer written to disk
+
+* Pitch is now calculated using the `To Pitch (filtered ac)` which is the new Praat gold standard I think. 
+
+* The `Kill octave jumps` is applied to the pitch object.
+
+* For simplicity, removed the option to calculate only 2 formants. It's a hassle to code around and calculating the third formant is blazing fast anyways.
+
+* When calculating HNR, Praat's "silence threshold" used to be set as 0.1. This means that frames with amplitude levels below this value were treated as "silent", and Praat automatically returns an HNR value of -200. There are a lot of -200s when using legacy PS, and I'm not convinced we want this, so I set the silence threshold to a much lower value (0.00001). 
+
+* When calculating CPP, we now use the "exponential decay" trend type. The terminology here is a bit weird -- as I understand it, CPP is basically the highest residual value from a linear regression of the cepstrum (which should correspond to the relative strength of the first harmonic). If trend type is "exponential decay", it looks like the cepstral energy values are transformed, I guess to account for the non-linear shape of the cepstrum. This'll mean a better model fit for sure, and as a result probably reduces the CPP. The Praat documentation recommends this, but Hillenbrand et al do *not* do this. I'm not sure if this is actually what we want.
+
+* CPP is tabulated directly from a cepstrogram, which is probably a relatively new feature.
+
+* For calculating harmonic amplitudes and spectral slopes, we first generate a spectrogram and then extract slices from that spectrogram. This seems more efficient making spectral slices one by one.
+  * One open question here: I'm currently using the default 20 Hz frequency step for creating spectrograms, but it's maybe worth reducing this to get higher precision?
+
+* The upper and lower limits of where to look for H2K and H5K are now just based on the pitch measures. 
+  *In previous version, it was based on the location of the cepstral peak. From in-code comments I gather this was to throw out less data, but I'm not sure I understand -- won't cepstral peak quefrency just be an inferior way of getting a pitch measure?
+
+* There's no correction of H2K.
+  * Previous version corrects it for the first three formants -- but isn't that potentially problematic when third formant is below is 2000 Hz?
+
 ## Time
 
 If we really want to speed up things in Praat, it's crucial that we don't have to gather values through a loop when we don't have to. This is nicely solved for `Pitch` objects, which have an actual `List values at times` function where we can pass a vector of times. Unfortunately it doesn't work like that for any of the other object types, so we have to settle for one of the Next Best Solutions:

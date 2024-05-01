@@ -1,14 +1,26 @@
+### Build first line of PraatSauce results table
+
 procedure initiateTable: .pitch, .formants, .harmonicAmplitude, .harmonicAmplitudeUncorrected,
-	... .bw, .slope, .slopeUncorrected, .cpp, .hnr, .outputDir$, .outputFile$,
+	... .bw, .slope, .slopeUncorrected, .cpp, .hnr, .rms, .outputDir$, .outputFile$,
 	... .useTextGrid
 
+## we build a string with space-delimited column names depending on the
+## measures that users ask for.
+## always need a column with file name
+
 firstLine$ = "file"
+
+## add label column only if users are using TextGrids
 
 if .useTextGrid <> 0
 	firstLine$ = firstLine$ + " label"
 endif
 
+## always need a column with times
+
 firstLine$ = firstLine$ + " t"
+
+## other columns depend on which measures users want returned
 
 if .pitch <> 0
 	firstLine$ = firstLine$ + " f0"
@@ -46,10 +58,21 @@ if .hnr <> 0
 	firstLine$ = firstLine$ + " HNR05 HNR15 HNR25 HNR35"
 endif
 
+if .rms <> 0
+	firstLine$ = firstLine$ + " intensity"
+endif
+
+## make table with required arguments: object name, number of rows, column names
+
 Create Table with column names: "init", 0, firstLine$
 tableID = selected("Table")
 
+## save the table as tsv
+
 Save as tab-separated file: "'.outputDir$''.outputFile$'"
+
+## clean up
+
 select tableID
 Remove
 

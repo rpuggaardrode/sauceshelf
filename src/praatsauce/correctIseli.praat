@@ -1,4 +1,9 @@
+### Iseli correction of harmonic amplitudes
+
 procedure correctIseli: .f#, .fx#, .bx#, .fs
+
+## haven't looked closely at this -- it's exactly the same as in legacy PS,
+## only vectorized
 
 r# = exp#(-pi*.bx#/.fs)
 omega_x# = 2*pi*.fx#/.fs
