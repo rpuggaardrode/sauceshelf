@@ -4,6 +4,8 @@
 
 * Much less of the work is done in the core `praatsauce` script, most of the labor is done in done in procedures in other scripts.
 
+* It's no longer possible to split the file name string into variables
+
 * The user has more freedom over which measures to return. These are all options: pitch, formants, bandwidths, harmonic amplitudes, uncorrected harmonic amplitudes, slope measures, uncorrected slope measures, CPP, HNR, and intensity
 
 * There is now an option to calculate intensity
