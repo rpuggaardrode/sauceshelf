@@ -131,7 +131,8 @@ for thisFile from 1 to numFile
 		if params.measureFormants <> 0
 			@fmt: params.measureBandwidths, timeStep, params.maxNumFormants,
 				... params.maxFormantHz, params.windowLength,
-				... params.preEmphFrom, times.start# [int], times.end# [int]
+				... params.preEmphFrom, times.start# [int], times.end# [int],
+				... params.f1ref, params.f2ref, params.f3ref
 			frameNums# = combine# (frameNums#, { fmt.numFrames })
 		endif
 

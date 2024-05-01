@@ -3,7 +3,7 @@
 include extract_snippet.praat
 
 procedure fmt: .measureBandwidths, .timeStep, .maxN, .maxHz,
-	... .windowLength, .preEmphFrom, .start, .end
+	... .windowLength, .preEmphFrom, .start, .end, .f1ref, .f2ref, .f3ref
 
 ## extract padded snippet.
 ## analysis windows are rounded in some arcane fashion, which is ignored here.
@@ -16,7 +16,16 @@ snippetID = selected("Sound")
 ## all formant calculation arguments are user-controlled
 
 To Formant (burg): .timeStep, .maxN, .maxHz, .windowLength, .preEmphFrom
-formantID = selected("Formant")
+orgFormantID = selected("Formant")
+
+## use tracking algo to clean these up a bit.
+## arguments are: how many formants to track, what are their references
+## (F1-F5 have to be specified, but untracked formants are ignored),
+## frequency cost, bandwidth cost, transition cost (the last three are all
+## just defaults)
+
+Track: 3, .f1ref, .f2ref, .f3ref, 3500, 4500, 1, 1, 1
+trackedFormantID = selected("Formant")
 
 ## grab frame times and number of frames
 
@@ -50,7 +59,8 @@ endif
 
 ## clean up
 
-select formantID
+select orgFormantID
+plus trackedFormantID
 plus tableID
 plus snippetID
 Remove
