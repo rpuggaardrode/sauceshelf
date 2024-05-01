@@ -46,6 +46,14 @@
 * There's no correction of H2K.
   * Previous version corrects it for the first three formants -- but isn't that potentially problematic when third formant is below is 2000 Hz?
 
+## Moving forwards
+
+* We need to do some proper testing still to make sure that the results are reasonably similar to previous version.
+
+* As with the previous version, this is built to loop through directories. I'm now wondering if this should be optional -- because of the directory structure of an emuDB, it might be nice if you could also call based on a file name or even a vector of file names.
+
+* I'd like to add functionality to loop through directories and set pitch floor and ceiling dynamically following De Looze & Hirst, but it doesn't look like there's a Praat function to get quantiles?? Makes things a lot more tricky.
+
 ## Time
 
 If we really want to speed up things in Praat, it's crucial that we don't have to gather values through a loop when we don't have to. This is nicely solved for `Pitch` objects, which have an actual `List values at times` function where we can pass a vector of times. Unfortunately it doesn't work like that for any of the other object types, so we have to settle for one of the Next Best Solutions:
