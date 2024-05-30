@@ -11,3 +11,4 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rpuggaardrode/sauceshelf
 BugReports: https://github.com/rpuggaardrode/sauceshelf/issues
+RoxygenNote: 7.2.3

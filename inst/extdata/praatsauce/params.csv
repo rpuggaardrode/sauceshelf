@@ -1,5 +1,5 @@
 variable,input,comment
-inputDir,../../inst/extdata,"Where are your sound files located?"
+inputDir,C:/work/Own_writings/In_progress/sauceshelf/inst/extdata/,"Where are your sound files located?"
 outputDir,.,"Where should the results be stored?"
 outputFile,out.tsv,"Results should be stored under which file name?"
 channel,1,"If you only want to analyze one channel, enter it here (or 0 for stereo)"

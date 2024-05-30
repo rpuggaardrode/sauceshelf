@@ -16,10 +16,12 @@ include zeroPadding.praat
 include initiateTable.praat
 include prepareTable.praat
 
-## process parameters file
-  ## this should probably be a "form"?
+form Parameters file
+  comment What is the location of your parameters file?
+  sentence paramsloc ./params.csv
+endform
 
-@params: "params.csv"
+@params: paramsloc$
 
 ## create the first line of the results file
 
@@ -49,6 +51,11 @@ if params.useTextGrid <> 0
 	tgListID = selected("Strings")
 	Sort
 	numTG = Get number of strings
+
+	if numFile <> numTG
+	  exitScript: "There is not a one-to-one correspondence between TextGrids and sound files"
+	endif
+
 endif
 
 ## initiate loop through sound files
