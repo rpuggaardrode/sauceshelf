@@ -21,7 +21,7 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
              f2ref, f3ref, maxFormantHz, useTextGrid, tgDir, intervalTier,
              includeTheseLabels)
   praatsauceLocation <- system.file('extdata/praatsauce/praatsauce.praat',
-                                    package='sauceplay')
+                                    package='sauceshelf')
   paramsLoc <- file.path(tempdir(), 'params.csv')
   syscall <- paste(praatLocation, praatsauceLocation, paramsLoc)
   system(syscall)
