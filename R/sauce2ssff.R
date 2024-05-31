@@ -1,3 +1,16 @@
+#' Convert sauce measures to SSFF files
+#'
+#' Converts sauce measures to SSFF files and adds them to a loaded EMU database.
+#'
+#' @param emuDBhandle Handle of a loaded EMU database.
+#' @param sauce Data frame containing sauce measures. This should be generated
+#' by running e.g. `praatsauce` on the same loaded EMU database.
+#'
+#' @return Used for side effects.
+#' @export
+#'
+#' @examples
+#' # not right now
 sauce2ssff <- function(emuDBhandle, sauce) {
 
   ssffDir <- paste0(tempdir(), '/ssff/')
