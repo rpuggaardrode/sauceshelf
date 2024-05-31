@@ -36,15 +36,23 @@ endform
   ## bulk processing should probably be optional if we want this to play well
   ## with emuR
 
-Create Strings as file list: "wavs", params.inputDir$ + "*.wav"
-wavsListID = selected("Strings")
-Sort
-numFile = Get number of strings
+if params.filelist$ <> "0"
+  Read Strings from raw text file: params.filelist$
+  wavsListID = selected("Strings")
+  numFile = Get number of strings
+else
+  Create Strings as file list: "wavs", params.inputDir$ + "*.wav"
+  wavsListID = selected("Strings")
+  Sort
+  numFile = Get number of strings
+endif
+
+#Create Strings as file list: "wavs", params.inputDir$ + "*.wav"
+#wavsListID = selected("Strings")
+#Sort
+#numFile = Get number of strings
 
 ## if using TextGrid, get list of TGs in the inputDir and sort them
-  ## in the current stage, this'll crash if there are more sound files than
-  ## TextGrids I reckon. should this get fixed or should we just get the script
-  ## to pop an error message?
 
 if params.useTextGrid <> 0
 	Create Strings as file list: "grids", params.inputDir$ + "*.TextGrid"
