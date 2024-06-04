@@ -109,6 +109,8 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
     inputDir <- inputDir$basePath
     recursive <- TRUE
     emuDB <- TRUE
+  } else {
+    emuDB <- FALSE
   }
 
   if (length(filelist) > 1) {
