@@ -30,7 +30,7 @@ cepID = selected("PowerCepstrogram")
 ## fit method (robust -- default "robust slow" is truly slow)
 
 To Table (cepstral peak prominences): 0, 0, 6, 3, 0, 3, .f0min, .f0max, 0.05, "parabolic",
-	... 0.001, 0.05, "Exponential decay", "Robust"
+	... 0.001, 0, "Exponential decay", "Robust"
 tableID = selected("Table")
 .res# = Get all numbers in column: "CPP(dB)"
 

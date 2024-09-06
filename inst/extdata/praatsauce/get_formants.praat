@@ -18,6 +18,15 @@ snippetID = selected("Sound")
 To Formant (burg): .timeStep, .maxN, .maxHz, .windowLength, .preEmphFrom
 orgFormantID = selected("Formant")
 
+## convert to formantGrid and back to remove undefineds
+
+Down to FormantGrid
+formantGridID = selected("FormantGrid")
+To Formant: .timeStep, 0.1
+fullFormantID = selected("Formant")
+
+##
+
 ## use tracking algo to clean these up a bit.
 ## arguments are: how many formants to track, what are their references
 ## (F1-F5 have to be specified, but untracked formants are ignored),
@@ -60,7 +69,9 @@ endif
 ## clean up
 
 select orgFormantID
+plus fullFormantID
 plus trackedFormantID
+plus formantGridID
 plus tableID
 plus snippetID
 Remove

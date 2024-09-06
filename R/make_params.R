@@ -97,6 +97,9 @@ make_params <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
   fileLoc <- file.path(outputDir, 'params.csv')
   if (file.exists(fileLoc)) file.remove(fileLoc)
 
+  if (intervalEquidistant > 0) intervalFixed <- FALSE
+  if (maxNumFormants < 4) stop('maxNumFormants should be higher than 4')
+
   p <- data.frame(
     variable = c('inputDir', 'outputDir', 'outputFile', 'channel',
                  'intervalEquidistant', 'intervalFixed', 'pitch', 'formant',
@@ -107,7 +110,8 @@ make_params <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
                  'maxFormantHz', 'useTextGrid', 'tgDir', 'filelist',
                  'intervalTier', 'includeTheseLabels'),
     input = c(inputDir, outputDir, outputFile, channel,
-              as.numeric(intervalEquidistant), intervalFixed, as.numeric(pitch),
+              as.numeric(intervalEquidistant), as.numeric(intervalFixed),
+              as.numeric(pitch),
               as.numeric(formant), as.numeric(harmonicAmplitude),
               as.numeric(harmonicAmplitudeUncorrected), as.numeric(bw),
               as.numeric(bwHawksMiller), as.numeric(slope),

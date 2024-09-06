@@ -8,13 +8,6 @@
 #' R style path extension will not work, as the directory should  be
 #' relative to the location of the Praat script.
 #' Alternatively, this can be the handle of a loaded EMU database.
-#' @param outputDir String giving the location of the directory where the
-#' PraatSauce output file should be stored. Default is to store it in a
-#' temporary directory. Note that this should be the entire file path; regular
-#' R style path extension will not work, as the directory should  be
-#' relative to the location of the Praat script.
-#' @param outputFile String giving the desired name of the PraatSauce output
-#' file. Default is `out.tsv`.
 #' @param channel Integer; if the audio has multiple channels, which one should
 #' be extracted and used for analysis? Default is `1`.
 #' @param intervalEquidistant Integer; if measures should be taken at
@@ -132,22 +125,26 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
              windowLength, f0min, f0max, maxNumFormants, preEmphFrom, f1ref,
              f2ref, f3ref, maxFormantHz, useTextGrid, tgDir, filelist,
              intervalTier, includeTheseLabels)
-  praatsauceLocation <- paste0(system.file('extdata/praatsauce/praatsauce.praat',
-                                           package='sauceshelf'))
+  praatsauceLocation <- system.file('extdata/praatsauce/praatsauce.praat',
+                                           package='sauceshelf')
   praatsauceLocation <- paste0('"', praatsauceLocation, '"')
-  paramsLoc <- file.path(tempdir(), 'params.csv')
+  paramsLoc <- file.path(outputDir, 'params.csv')
   paramsLoc <- paste0('"', paramsLoc, '"')
   syscall <- paste(praatLocation, praatsauceLocation, paramsLoc)
   system(syscall)
 
-  out <- read.table(file.path(tempdir(), 'out.tsv'),
+  out <- read.table(file.path(outputDir, outputFile),
                     sep = '\t', header=T)
   out[] <- lapply(out, gsub, pattern = '--undefined--', replacement = '0')
-  out[,2:ncol(out)] <- lapply(out[,2:ncol(out)], as.numeric)
+  if (useTextGrid) {
+    out[,3:ncol(out)] <- lapply(out[,3:ncol(out)], as.numeric)
+  } else {
+    out[,2:ncol(out)] <- lapply(out[,2:ncol(out)], as.numeric)
+  }
   out$file <- gsub('^ *', '', out$file, perl=T)
 
   if (emuDB) {
-    session <- gsub('_.*$', '', out$file, perl=T)
+    session <- gsub('/.*', '', out$file, perl=T)
     bundle <- gsub('.*/', '', out$file, perl=T)
     bundle <- gsub('.wav', '', bundle)
     out <- out[,-1]

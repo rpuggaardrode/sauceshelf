@@ -153,7 +153,7 @@ correct_iseli <- function(f, fx, bx, fs) {
   return(corr)
 }
 
-es2 <- emusauce('inst/extdata/1.wav')
+es2 <- emusauce('inst/extdata/audio/1.wav')
 
 compare_emu_praat <- function(file, es_obj, signal) {
   fn <- paste0(file, '.', signal)
