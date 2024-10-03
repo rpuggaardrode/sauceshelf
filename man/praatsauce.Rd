@@ -48,15 +48,6 @@ R style path extension will not work, as the directory should  be
 relative to the location of the Praat script.
 Alternatively, this can be the handle of a loaded EMU database.}
 
-\item{outputDir}{String giving the location of the directory where the
-PraatSauce output file should be stored. Default is to store it in a
-temporary directory. Note that this should be the entire file path; regular
-R style path extension will not work, as the directory should  be
-relative to the location of the Praat script.}
-
-\item{outputFile}{String giving the desired name of the PraatSauce output
-file. Default is `out.tsv`.}
-
 \item{channel}{Integer; if the audio has multiple channels, which one should
 be extracted and used for analysis? Default is `1`.}
 
@@ -165,5 +156,8 @@ Shell wrapper for running the PraatSauce suite of Praat scripts.
 Returns the results as a data frame.
 }
 \examples{
-# not right now
+\dontrun{
+datapath <- system.file('extdata/audio', package='sauceshelf')
+sauce <- sauceshelf::praatsauce(datapath)
+}
 }

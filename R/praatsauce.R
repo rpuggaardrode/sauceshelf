@@ -82,7 +82,10 @@
 #' @export
 #'
 #' @examples
-#' # not right now
+#' \dontrun{
+#' datapath <- system.file('extdata/audio', package='sauceshelf')
+#' sauce <- sauceshelf::praatsauce(datapath)
+#' }
 praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
                        channel = 1, intervalEquidistant = FALSE,
                        intervalFixed = 0.005, pitch = TRUE, formant = TRUE,
@@ -133,23 +136,7 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
   syscall <- paste(praatLocation, praatsauceLocation, paramsLoc)
   system(syscall)
 
-  out <- read.table(file.path(outputDir, outputFile),
-                    sep = '\t', header=T)
-  out[] <- lapply(out, gsub, pattern = '--undefined--', replacement = '0')
-  if (useTextGrid) {
-    out[,3:ncol(out)] <- lapply(out[,3:ncol(out)], as.numeric)
-  } else {
-    out[,2:ncol(out)] <- lapply(out[,2:ncol(out)], as.numeric)
-  }
-  out$file <- gsub('^ *', '', out$file, perl=T)
-
-  if (emuDB) {
-    session <- gsub('/.*', '', out$file, perl=T)
-    bundle <- gsub('.*/', '', out$file, perl=T)
-    bundle <- gsub('.wav', '', bundle)
-    out <- out[,-1]
-    out <- cbind(session, bundle, out)
-  }
+  out <- load_sauce(file.path(outputDir, outputFile), useTextGrid, emuDB)
 
   return(out)
 }
