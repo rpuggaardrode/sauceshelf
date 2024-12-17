@@ -22,23 +22,45 @@ praatsauce(
   cpp = TRUE,
   hnr = TRUE,
   intensity = TRUE,
+  soe = TRUE,
   resample16kHz = FALSE,
   windowLength = 0.025,
   f0min = 50,
   f0max = 300,
+  pitchMethod = "autocorrelation",
+  pitchWindowShape = "hanning",
+  pitchMaxNoCandidates = 15,
+  silenceThreshold = 0.01,
+  voicingThreshold = NULL,
+  octaveCost = NULL,
+  octaveJumpCost = 0.35,
+  voicedUnvoicedCost = 0.14,
+  killOctaveJumps = TRUE,
   maxNumFormants = 5,
   preEmphFrom = 50,
   f1ref = 500,
   f2ref = 1500,
   f3ref = 2500,
   maxFormantHz = 5000,
+  pitchSynchronous = FALSE,
+  cppTrendType = "exponential",
+  cppFast = TRUE,
+  pitchSave = FALSE,
+  pitchSaveDir = NULL,
+  pitchRead = FALSE,
+  pitchReadDir = NULL,
+  formantSave = FALSE,
+  formantSaveDir = NULL,
+  formantRead = FALSE,
+  formantReadDir = NULL,
   useTextGrid = FALSE,
-  tgDir = FALSE,
+  tgDir = NULL,
   filelist = 0,
   intervalTier = 1,
   includeTheseLabels = "^(?!\\\\s*$).+",
   praatLocation = "praat",
-  recursive = FALSE
+  recursive = FALSE,
+  na_output = NA
 )
 }
 \arguments{
@@ -47,6 +69,11 @@ to process. Note that this should be the entire file path; regular
 R style path extension will not work, as the directory should  be
 relative to the location of the Praat script.
 Alternatively, this can be the handle of a loaded EMU database.}
+
+\item{outputDir}{String giving the location of a directory to store the
+output file. Default is to store it in a temporary directory.}
+
+\item{outputFile}{String giving the name of the PraatSauce output file.}
 
 \item{channel}{Integer; if the audio has multiple channels, which one should
 be extracted and used for analysis? Default is `1`.}
@@ -89,6 +116,9 @@ Default is `TRUE`.}
 
 \item{intensity}{Logical; should intensity be reported? Default is `TRUE`.}
 
+\item{soe}{Logical; should strength of excitation be reported? Default is
+`TRUE`.}
+
 \item{resample16kHz}{Logical; should files be resampled to 16 kHz before
 analysis? Default is `FALSE`.}
 
@@ -98,6 +128,42 @@ seconds). Default is `0.025`.}
 \item{f0min}{Integer giving the pitch floor. Default is `50`.}
 
 \item{f0max}{Integer giving the pitch ceiling. Default is `300`.}
+
+\item{pitchMethod}{String giving the name of the method to use for
+estimating pitch. Valid options are `'autocorrelation'` (default) and
+`'crosscorrelation'`.}
+
+\item{pitchWindowShape}{String giving the window shape to use for
+estimating pitch. Valid options are `'Hanning'` (default) and `'Gaussian'`.}
+
+\item{pitchMaxNoCandidates}{Integer giving the maximum number of pitch
+candidates to estimate. Default is `15`.}
+
+\item{silenceThreshold}{Numeric giving the silence threshold when estimating
+pitch in terms of amplitude relative to the global maximum. Default is `0.01`.}
+
+\item{voicingThreshold}{Numeric giving the voicing threshold when estimating
+pitch in terms of fractional strength in the {auto|cross}correlation function.
+Default is `NULL`, in which case the value depends on `pitchMethod`:
+`0.5` is used with `pitchMethod='autocorrelation'` and `0.55` is used with
+`pitchMethod='crosscorrelation'`.}
+
+\item{octaveCost}{Numeric specifying how much high frequency pitch candidates
+should be favored in terms of fractional strength in the {auto|cross}
+correlation function. Default is `NULL`, in which case the value depends on
+`pitchMethod`: `0.055` is used with `pitchMethod='autocorrelation'` and
+`0.01` is used with `pitchMethod='crosscorrelation`.}
+
+\item{octaveJumpCost}{Numeric specifying how much pitch changes should be
+disfavored in terms of fractional strength in the {auto|cross} correlation
+function. Default is `0.35`.}
+
+\item{voicedUnvoicedCost}{Numeric specifying how much transitions in
+voicing value should be disfavored in terms of fractional strength in
+the {auto|cross} correlation function. Default is `0.14`.}
+
+\item{killOctaveJumps}{Boolean; should Praat's `Kill octave jumps` function
+be run on the pitch track? Default is `TRUE`.}
 
 \item{maxNumFormants}{Integer giving the maximum number of formants to
 estimate. Default is `5`.}
@@ -116,6 +182,42 @@ Default is `2500`.}
 
 \item{maxFormantHz}{Numeric giving the maximum frequency to search for
 formants. Default is `5000`.}
+
+\item{pitchSynchronous}{Boolean; should harmonic amplitudes be estimated
+using window sizes derived synchronously from the local pitch? Default is
+`FALSE`.}
+
+\item{cppTrendType}{String giving the type of regression to apply to the
+cepstrum for estimating CPP. Valid options are `'exponential'` (default)
+and `'linear'`.}
+
+\item{cppFast}{Boolean specifying whether a much faster but slightly less
+precise regression implementation should be used for estimating CPP.
+Default is `TRUE`.}
+
+\item{pitchSave}{Boolean; should pitch files be saved to disk? Default is
+`FALSE`.}
+
+\item{pitchSaveDir}{String giving the location to use for storing pitch
+files. Default is `NULL`.}
+
+\item{pitchRead}{Boolean; should pitch files be read from disk? Default is
+`FALSE`.}
+
+\item{pitchReadDir}{String giving the location where pitch files are stored.
+Default is `NULL.`}
+
+\item{formantSave}{Boolean; should formant files be saved to disk? Default
+is `FALSE`.}
+
+\item{formantSaveDir}{String giving the location to use for storing
+formant files. Default is `NULL`.}
+
+\item{formantRead}{Boolean; should formant files be read from disk? Default
+is `FALSE`.}
+
+\item{formantReadDir}{String giving the location where formant files are
+stored. Default is `NULL`.}
 
 \item{useTextGrid}{Logical; should TextGrids be used to determine which
 parts of sound files to measure? Default is `FALSE`.}
@@ -146,6 +248,8 @@ opens.}
 
 \item{recursive}{Logical; should sound files in subdirectories of
 `inputDir` be analyzed? Default is `FALSE`.}
+
+\item{na_output}{How should infelicitous values be coded? Default is `NA`.}
 }
 \value{
 Data frame containing results of chosen measures for each
@@ -158,6 +262,6 @@ Returns the results as a data frame.
 \examples{
 \dontrun{
 datapath <- system.file('extdata/audio', package='sauceshelf')
-sauce <- sauceshelf::praatsauce(datapath)
+sauce <- praatsauce(datapath)
 }
 }

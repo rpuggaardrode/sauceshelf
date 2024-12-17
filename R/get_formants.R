@@ -1,3 +1,30 @@
+#' Estimate formants and formant bandwidths
+#'
+#' Estimate formants and optionally bandwidths for a list of sound files.
+#' Wrapper for [wrassp::forest] returning a data frame.
+#'
+#' @param filelist Vector of strings giving the names of sound files to analyze.
+#' @param inputDir String giving the directory where sound files are located.
+#' @param intervalFixed Numeric; how often should measures be taken (in
+#' seconds)? Default is `0.005`.
+#' @param windowLength Numeric giving the length of the analysis window (in
+#' seconds). Default is `0.025`.
+#' @param measureBandwidths Boolean; should bandwidths be returned? Default is
+#' `FALSE`.
+#' @param maxNumFormants Integer giving the maximum number of formants to
+#' estimate. Default is `5`.
+#' @param beginTime Numeric; where should the first measure be taken (in
+#' seconds)? Default is `0`.
+#' @param praatsauce_output Optional data frame containing existing measures
+#' from PraatSauce. Used to ensure an equal number of rows.
+#'
+#' @return A data frame with formants and optionally bandwidths values.
+#' @export
+#'
+#' @examples
+#' datapath <- system.file('extdata/audio', package='sauceshelf')
+#' fls <- list.files(datapath, pattern='.wav')
+#' fmt <- get_formants(fls, datapath)
 get_formants <- function(filelist, inputDir = '.',
                          intervalFixed = 0.005, windowLength = 0.025,
                          measureBandwidths = FALSE, maxNumFormants = 5,

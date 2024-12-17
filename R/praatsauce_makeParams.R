@@ -1,7 +1,7 @@
-#' Run PraatSauce from R
+#' Generate parameters file to use with PraatSauce
 #'
-#' Shell wrapper for running the PraatSauce suite of Praat scripts.
-#' Returns the results as a data frame.
+#' The PraatSauce scripts require a CSV file with estimation parameters.
+#' This function generates such a file that is formatted correctly.
 #'
 #' @param inputDir String giving the location of a directory with WAV files
 #' to process. Note that this should be the entire file path; regular
@@ -125,97 +125,101 @@
 #' @param includeTheseLabels String giving a well-formed regex of labels to
 #' search for in TextGrids. Default is `^(?!\\s*$).+`, i.e. any non-empty
 #' interval.
-#' @param praatLocation String giving the location of Praat on your computer.
-#' The function will fail silently if this string is not correct.
-#' Default is `praat`, which will be correct if Praat is stored in `System32`
-#' on Windows, or similar locations on a Unix-alike OS. You can test whether
-#' this is correct by calling `system(praat)` and checking if a Praat window
-#' opens.
-#' @param recursive Logical; should sound files in subdirectories of
-#' `inputDir` be analyzed? Default is `FALSE`.
-#' @param na_output How should infelicitous values be coded? Default is `NA`.
 #'
-#' @return Data frame containing results of chosen measures for each
-#' sound file in `inputDir`.
+#' @return Used for side effects (generates a CSV file).
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' datapath <- system.file('extdata/audio', package='sauceshelf')
-#' sauce <- praatsauce(datapath)
-#' }
-praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
-                       channel = 1, intervalEquidistant = FALSE,
-                       intervalFixed = 0.005, pitch = TRUE, formant = TRUE,
-                       harmonicAmplitude = TRUE,
-                       harmonicAmplitudeUncorrected = TRUE,
-                       bw = TRUE, bwHawksMiller = TRUE, slope = TRUE,
-                       slopeUncorrected = TRUE, cpp = TRUE, hnr = TRUE,
-                       intensity = TRUE, soe = TRUE, resample16kHz = FALSE,
-                       windowLength = 0.025, f0min = 50, f0max = 300,
-                       pitchMethod = 'autocorrelation',
-                       pitchWindowShape = 'hanning', pitchMaxNoCandidates = 15,
-                       silenceThreshold = 0.01, voicingThreshold = NULL,
-                       octaveCost = NULL, octaveJumpCost = 0.35,
-                       voicedUnvoicedCost = 0.14, killOctaveJumps = TRUE,
-                       maxNumFormants = 5, preEmphFrom = 50, f1ref = 500,
-                       f2ref = 1500, f3ref = 2500, maxFormantHz = 5000,
-                       pitchSynchronous = FALSE, cppTrendType = 'exponential',
-                       cppFast = TRUE, pitchSave = FALSE, pitchSaveDir = NULL,
-                       pitchRead = FALSE, pitchReadDir = NULL,
-                       formantSave = FALSE, formantSaveDir = NULL,
-                       formantRead = FALSE, formantReadDir = NULL,
-                       useTextGrid = FALSE, tgDir = NULL, filelist = 0,
-                       intervalTier = 1, includeTheseLabels = '^(?!\\s*$).+',
-                       praatLocation = 'praat', recursive = FALSE,
-                       na_output = NA) {
+#' # not right now
+praatsauce_makeParams <- function(inputDir, outputDir = tempdir(),
+                                  outputFile = 'out.tsv', channel = 1,
+                                  intervalEquidistant = FALSE,
+                                  intervalFixed = 0.005, pitch = TRUE,
+                                  formant = TRUE, harmonicAmplitude = TRUE,
+                                  harmonicAmplitudeUncorrected = TRUE,
+                                  bw = TRUE, bwHawksMiller = TRUE, slope = TRUE,
+                                  slopeUncorrected = TRUE, cpp = TRUE,
+                                  hnr = TRUE, intensity = TRUE, soe = TRUE,
+                                  resample16kHz = FALSE, windowLength = 0.025,
+                                  f0min = 50, f0max = 300,
+                                  pitchMethod = 'autocorrelation',
+                                  pitchWindowShape = 'hanning',
+                                  pitchMaxNoCandidates = 15,
+                                  silenceThreshold = 0.01,
+                                  voicingThreshold = NULL, octaveCost = NULL,
+                                  octaveJumpCost = 0.35,
+                                  voicedUnvoicedCost = 0.14,
+                                  killOctaveJumps = TRUE, maxNumFormants = 5,
+                                  preEmphFrom = 50, f1ref = 500, f2ref = 1500,
+                                  f3ref = 2500, maxFormantHz = 5000,
+                                  pitchSynchronous = FALSE,
+                                  cppTrendType = 'exponential', cppFast = TRUE,
+                                  pitchSave = FALSE, pitchSaveDir = NULL,
+                                  pitchRead = FALSE, pitchReadDir = NULL,
+                                  formantSave = FALSE, formantSaveDir = NULL,
+                                  formantRead = FALSE, formantReadDir = NULL,
+                                  useTextGrid = FALSE, tgDir = NULL,
+                                  filelist = NULL, intervalTier = 1,
+                                  includeTheseLabels = '^(?!\\s*$).+') {
 
-  if (class(inputDir) == 'emuDBhandle') {
-    inputDir <- inputDir$basePath
-    recursive <- TRUE
-    emuDB <- TRUE
-  } else {
-    emuDB <- FALSE
-  }
+  fileLoc <- file.path(outputDir, 'params.csv')
+  if (file.exists(fileLoc)) file.remove(fileLoc)
 
-  if (length(filelist) > 1) {
-    fl <- filelist
-    filelist <- file.path(tempdir(), 'filelist.txt')
-    writeLines(fl, con=filelist)
-  }
+  if (intervalEquidistant > 0) intervalFixed <- FALSE
+  if (maxNumFormants < 4) stop('maxNumFormants should be higher than 4')
+  if (!pitchMethod %in% c('autocorrelation', 'crosscorrelation')) stop(
+    'pitchMethod should be either autocorrelation or crosscorrelation')
+  if (!pitchWindowShape %in% c('hanning', 'gaussian')) stop(
+    'pitchWindowShape should be either hanning or gaussian')
+  if (is.null(voicingThreshold)) voicingThreshold <- 0
+  if (is.null(octaveCost)) octaveCost <- 0
+  if (!cppTrendType %in% c('exponential', 'linear')) stop(
+    'cppTrendType should be exponential or linear')
+  if (is.null(pitchSaveDir)) pitchSaveDir <- 'path/to/pitch'
+  if (is.null(pitchReadDir)) pitchReadDir <- 'path/to/pitch'
+  if (is.null(formantSaveDir)) formantSaveDir <- 'path/to/formant'
+  if (is.null(formantReadDir)) formantReadDir <- 'path/to/formant'
+  if (is.null(tgDir)) tgDir <- 'path/to/tg'
+  if (is.null(filelist)) filelist <- 0
 
-  if (recursive) {
-    fl <- list.files(inputDir, pattern='*.wav', recursive=TRUE)
-    filelist <- file.path(tempdir(), 'filelist.txt')
-    writeLines(fl, con=filelist)
-  }
+  p <- data.frame(
+    variable = c('inputDir', 'outputDir', 'outputFile', 'channel',
+                 'intervalEquidistant', 'intervalFixed', 'pitch', 'formant',
+                 'harmonicAmplitude', 'harmonicAmplitudeUncorrected', 'bw',
+                 'bwHawksMiller', 'slope', 'slopeUncorrected', 'cpp', 'hnr',
+                 'intensity', 'soe', 'resample16kHz', 'windowLength', 'f0min',
+                 'f0max', 'pitchMethod', 'pitchWindowShape',
+                 'pitchMaxNoCandidates', 'silenceThreshold', 'voicingThreshold',
+                 'octaveCost', 'octaveJumpCost', 'voicedUnvoicedCost',
+                 'killOctaveJumps', 'maxNumFormants', 'preEmphFrom', 'f1ref',
+                 'f2ref', 'f3ref', 'maxFormantHz', 'pitchSynchronous',
+                 'cppTrendType', 'cppFast', 'pitchSave', 'pitchSaveDir',
+                 'pitchRead', 'pitchReadDir', 'formantSave', 'formantSaveDir',
+                 'formantRead', 'formantReadDir', 'useTextGrid', 'tgDir',
+                 'filelist', 'intervalTier', 'includeTheseLabels'),
+    input = c(inputDir, outputDir, outputFile, channel,
+              as.numeric(intervalEquidistant), as.numeric(intervalFixed),
+              as.numeric(pitch),
+              as.numeric(formant), as.numeric(harmonicAmplitude),
+              as.numeric(harmonicAmplitudeUncorrected), as.numeric(bw),
+              as.numeric(bwHawksMiller), as.numeric(slope),
+              as.numeric(slopeUncorrected), as.numeric(cpp), as.numeric(hnr),
+              as.numeric(intensity), as.numeric(soe), as.numeric(resample16kHz),
+              windowLength, f0min, f0max,
+              ifelse(pitchMethod == 'autocorrelation', 0, 1),
+              ifelse(pitchWindowShape == 'hanning', 0, 1), pitchMaxNoCandidates,
+              silenceThreshold, voicingThreshold, octaveCost, octaveJumpCost,
+              voicedUnvoicedCost, as.numeric(killOctaveJumps), maxNumFormants,
+              preEmphFrom, f1ref, f2ref, f3ref, maxFormantHz,
+              as.numeric(pitchSynchronous),
+              ifelse(cppTrendType == 'exponential', 0, 1), as.numeric(cppFast),
+              as.numeric(pitchSave), pitchSaveDir, as.numeric(pitchRead),
+              pitchReadDir, as.numeric(formantSave), formantSaveDir,
+              as.numeric(formantRead), formantReadDir,
+              as.numeric(useTextGrid), tgDir,
+              filelist, intervalTier, includeTheseLabels)
+  )
 
-  praatsauce_makeParams(inputDir, outputDir, outputFile, channel,
-                        intervalEquidistant, intervalFixed, pitch, formant,
-                        harmonicAmplitude, harmonicAmplitudeUncorrected, bw,
-                        bwHawksMiller, slope, slopeUncorrected, cpp, hnr,
-                        intensity, soe, resample16kHz, windowLength, f0min,
-                        f0max, pitchMethod, pitchWindowShape,
-                        pitchMaxNoCandidates, silenceThreshold,
-                        voicingThreshold, octaveCost, octaveJumpCost,
-                        voicedUnvoicedCost, killOctaveJumps, maxNumFormants,
-                        preEmphFrom, f1ref, f2ref, f3ref, maxFormantHz,
-                        pitchSynchronous, cppTrendType, cppFast, pitchSave,
-                        pitchSaveDir, pitchRead, pitchReadDir, formantSave,
-                        formantSaveDir, formantRead, formantReadDir,
-                        useTextGrid, tgDir, filelist, intervalTier,
-                        includeTheseLabels)
-  praatsauceLocation <- system.file('extdata/praatsauce/praatsauce.praat',
-                                           package='sauceshelf')
-  praatsauceLocation <- paste0('"', praatsauceLocation, '"')
-  paramsLoc <- file.path(outputDir, 'params.csv')
-  paramsLoc <- paste0('"', paramsLoc, '"')
-  syscall <- paste(praatLocation, praatsauceLocation, paramsLoc)
-  # system(syscall)
-  sys::exec_wait(syscall)
+  utils::write.csv(p, file=fileLoc, row.names=F, quote=F)
 
-  out <- praatsauce_load(file.path(outputDir, outputFile), useTextGrid, emuDB,
-                         na_output)
-
-  return(out)
 }

@@ -9,12 +9,14 @@ include get_bwHawksMiller.praat
 include get_HNR.praat
 include get_CPP.praat
 include get_intensity.praat
+include get_SoE.praat
 include combineMatrices.praat
 include resample.praat
 include extract_channel.praat
 include zeroPadding.praat
 include initiateTable.praat
 include prepareTable.praat
+include restrictInterval.praat
 
 form Parameters file
   comment What is the location of your parameters file?
@@ -28,7 +30,7 @@ endform
 @initiateTable: params.pitch, params.formant, params.harmonicAmplitude,
 	... params.harmonicAmplitudeUncorrected, params.bw, params.slope,
 	... params.slopeUncorrected, params.cpp, params.hnr, params.intensity,
-	... params.outputDir$, params.outputFile$, params.useTextGrid
+	... params.soe, params.outputDir$, params.outputFile$, params.useTextGrid
 
 ## get list of files in the inputDir
 ## not sure if the sorting is actually necessary -- legacy PS does it
@@ -46,11 +48,6 @@ else
   Sort
   numFile = Get number of strings
 endif
-
-#Create Strings as file list: "wavs", params.inputDir$ + "*.wav"
-#wavsListID = selected("Strings")
-#Sort
-#numFile = Get number of strings
 
 ## if using TextGrid, get list of TGs in the inputDir and sort them
 
@@ -76,6 +73,11 @@ for thisFile from 1 to numFile
 	thisWav$ = Get string: thisFile
 	Read from file: params.inputDir$ + thisWav$
 	soundID = selected("Sound")
+
+	## get base file name
+
+	fnLen = length(thisWav$)
+	basefn$ = left$(thisWav$, fnLen - 4)
 
   ## resample if needed
   ## not done by default, probably something VS does because it makes STRAIGHT
@@ -137,7 +139,13 @@ for thisFile from 1 to numFile
 
 		if params.measurePitch <> 0
 			@pitch: timeStep, params.f0min, params.f0max, times.start# [int],
-				... times.end# [int]
+				... times.end# [int], params.pitchMethod,
+				... params.pitchWindowShape, params.pitchMaxNoCandidates,
+				... params.silenceThreshold, params.voicingThreshold,
+				... params.octaveCost, params.octaveJumpCost,
+				... params.voicedUnvoicedCost, params.killOctaveJumps,
+				... params.pitchSave, params.pitchSaveDir$,
+				... params.pitchRead, params.pitchReadDir$, basefn$
 			frameNums# = combine# (frameNums#, { pitch.numFrames })
 		endif
 
@@ -147,7 +155,9 @@ for thisFile from 1 to numFile
 			@fmt: params.measureBandwidths, timeStep, params.maxNumFormants,
 				... params.maxFormantHz, params.windowLength,
 				... params.preEmphFrom, times.start# [int], times.end# [int],
-				... params.f1ref, params.f2ref, params.f3ref
+				... params.f1ref, params.f2ref, params.f3ref,
+				... params.formantSave, params.formantSaveDir$,
+				... params.formantRead, params.formantReadDir$, basefn$
 			frameNums# = combine# (frameNums#, { fmt.numFrames })
 		endif
 
@@ -173,7 +183,7 @@ for thisFile from 1 to numFile
 
 		if params.cpp <> 0
 			@cpp: timeStep, params.f0min, params.f0max, times.start# [int],
-				... times.end# [int]
+				... times.end# [int], params.cppTrendType, params.cppFast
 			frameNums# = combine# (frameNums#, { cpp.numFrames })
 		endif
 
@@ -273,10 +283,17 @@ for thisFile from 1 to numFile
 		if params.spectralMeasures <> 0
 			@spec: params.windowLength, timeStep, mostFrames, times#,
 				... params.measureSlope, params.slopeUncorrected,
-				... params.f0min, params.f0max,
+				... params.pitchSynchronous, params.f0min, params.f0max,
 				... f0#, f1#, f2#, f3#, b1#, b2#, b3#, fs,
 				... times.start# [int], times.end# [int]
 		endif
+
+    ## get SoE
+
+    if params.soe <> 0
+      @soe: fs, pitch.meanF0, timeStep, mostFrames, times#, params.windowLength,
+        ... times.start# [int], times.end# [int]
+    endif
 
 	## compile the results.
 	## round times vector to three decimals (has to be done in a roundabout way)
@@ -317,15 +334,18 @@ for thisFile from 1 to numFile
 	if params.intensity <> 0
 		@combineMatrices: { rms# }
 	endif
+	if params.soe <> 0
+	  @combineMatrices: { soe.soe# }
+	endif
 
 	## convert matrix to table so we can add string values
 
 	@prepareTable: thisWav$, params.outputDir$, params.outputFile$, params.useTextGrid,
 		... times.labs$ [int]
 
-	endfor
-
   ## end loop through intervals
+
+	endfor
 
 	select soundID
 	Remove

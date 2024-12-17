@@ -1,9 +1,11 @@
 ### Get formant values
 
 include extract_snippet.praat
+include restrictInterval.praat
 
 procedure fmt: .measureBandwidths, .timeStep, .maxN, .maxHz,
-	... .windowLength, .preEmphFrom, .start, .end, .f1ref, .f2ref, .f3ref
+	... .windowLength, .preEmphFrom, .start, .end, .f1ref, .f2ref, .f3ref,
+	... .save, .saveDir$, .read, .readDir$, .basefn$
 
 ## extract padded snippet.
 ## analysis windows are rounded in some arcane fashion, which is ignored here.
@@ -13,28 +15,51 @@ soundID = selected("Sound")
 @snippet: .start, .end, .windowLength + (.timeStep / 2)
 snippetID = selected("Sound")
 
-## all formant calculation arguments are user-controlled
+if .read = 0
 
-To Formant (burg): .timeStep, .maxN, .maxHz, .windowLength, .preEmphFrom
-orgFormantID = selected("Formant")
+  ## all formant calculation arguments are user-controlled
 
-## convert to formantGrid and back to remove undefineds
+  To Formant (burg): .timeStep, .maxN, .maxHz, .windowLength, .preEmphFrom
+  orgFormantID = selected("Formant")
 
-Down to FormantGrid
-formantGridID = selected("FormantGrid")
-To Formant: .timeStep, 0.1
-fullFormantID = selected("Formant")
+  ## convert to formantGrid and back to remove undefineds
 
-##
+  #### Removed this for now because it messes up the time domain.
+  #### Will add formant duplicates to any part of the sound file that isn't
+  #### tracked because of the windowing
 
-## use tracking algo to clean these up a bit.
-## arguments are: how many formants to track, what are their references
-## (F1-F5 have to be specified, but untracked formants are ignored),
-## frequency cost, bandwidth cost, transition cost (the last three are all
-## just defaults)
+  #### This could be a more serious problem, because the tracking algo below
+  #### will shoot an error if there --undefined--s in F3
 
-Track: 3, .f1ref, .f2ref, .f3ref, 3500, 4500, 1, 1, 1
-trackedFormantID = selected("Formant")
+  #Down to FormantGrid
+  #formantGridID = selected("FormantGrid")
+  #To Formant: .timeStep, 0.1
+  #fullFormantID = selected("Formant")
+
+  ##
+
+  ## use tracking algo to clean these up a bit.
+  ## arguments are: how many formants to track, what are their references
+  ## (F1-F5 have to be specified, but untracked formants are ignored),
+  ## frequency cost, bandwidth cost, transition cost (the last three are all
+  ## just defaults)
+
+  Track: 3, .f1ref, .f2ref, .f3ref, 3500, 4500, 1, 1, 1
+  trackedFormantID = selected("Formant")
+
+  if .save <> 0
+
+    Save as text file: .saveDir$ + .basefn$ + ".Formant"
+
+  endif
+
+else
+
+  Read from file: .readDir$ + .basefn$ + ".Formant"
+  orgFormantID = selected("Formant")
+  trackedFormantID = selected("Formant")
+
+endif
 
 ## grab frame times and number of frames
 
@@ -66,12 +91,33 @@ if .measureBandwidths <> 0
 	.b3# = Get all numbers in column: "B3(Hz)"
 endif
 
+if .start > 0 | .end < dur
+
+  @restrictInterval: .times#, .f1#, .start, .end
+  .f1# = restrictInterval.newVals#
+  @restrictInterval: .times#, .f2#, .start, .end
+  .f2# = restrictInterval.newVals#
+  @restrictInterval: .times#, .f3#, .start, .end
+  .f3# = restrictInterval.newVals#
+  .times# = restrictInterval.newTimes#
+
+  if .measureBandwidths <> 0
+    @restrictInterval: .times#, .b1#, .start, .end
+    .b1# = restrictInterval.newVals#
+    @restrictInterval: .times#, .b2#, .start, .end
+    .b2# = restrictInterval.newVals#
+    @restrictInterval: .times#, .b3#, .start, .end
+    .b3# = restrictInterval.newVals#
+  endif
+
+  .numFrames = size(restrictInterval.newTimes#)
+
+endif
+
 ## clean up
 
 select orgFormantID
-plus fullFormantID
 plus trackedFormantID
-plus formantGridID
 plus tableID
 plus snippetID
 Remove
