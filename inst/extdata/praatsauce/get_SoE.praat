@@ -5,11 +5,11 @@ procedure soe: .fs, .meanF0, .timeStep, .numFrames, .times#, .windowLength,
 
 ## extract snippet, using same window as for pitch estimation
 
-soundID = selected("Sound")
+snd = selected("Sound")
 
 @snippet: .start, .end, ((3 * (1 / 50)) / 2) + (.timeStep / 2)
 start = Get start time
-snippetID = selected("Sound")
+snippet = selected("Sound")
 dur = Get total duration
 
 ## resample to 16kHz unless sample rate already 16 kHz or lower, in which case
@@ -17,13 +17,13 @@ dur = Get total duration
 
 if .fs > 16000
   Resample: 16000, 50
-  fs = 16000
+  newFS = 16000
 else
   Copy: "x"
-  fs = .fs
+  newFS = .fs
 endif
 
-meanPitchSamp = fs / .meanF0
+meanPitchSamp = newFS / .meanF0
 windSamp = round (2 * (meanPitchSamp / 1.5) + 1)
 
 ## get differenced signal
@@ -34,10 +34,10 @@ Reverse
 
 ## cascade of zero frequency filters
 
-@zeroFrequencyFilter: dur, fs, windSamp, start
-@zeroFrequencyFilter: dur, fs, windSamp, start
+@zeroFrequencyFilter: dur, newFS, windSamp, start
+@zeroFrequencyFilter: dur, newFS, windSamp, start
 
-filteredID = selected("Sound")
+filter = selected("Sound")
 
 ## time information gets messed up at some point in the above by converting
 ## between matrices and sound objects, so we fix that...
@@ -48,31 +48,23 @@ Shift times to: "start time", start
 ## over them
 
 if .start > 0
-  Extract part: start + ((3 * (1 / 50)) / 2) + (.timeStep / 2),
+  tmp = Extract part: start + ((3 * (1 / 50)) / 2) + (.timeStep / 2),
     ... start + dur - ((3 * (1 / 50)) / 2) + (.timeStep / 2), "rectangular", 1, 1
-  tmpID = selected("Sound")
 
-  select filteredID
-  Remove
-
-  select tmpID
-  filteredID = selected("Sound")
+  removeObject: filter
+  filter = selected("Sound")
 endif
 
-# Formula (part): 0, 1 / windSamp, 1, 1, "0"
-# Formula (part): dur - 1 / windSamp, dur, 1, 1, "0"
 
 Scale peak: 0.99
-Down to Matrix
-filtMatID = selected("Matrix")
+filtMat = Down to Matrix
 z# = Get all values in row: 1
 
 ## Create pointprocess object with positive-to-negative zero crossings
 ## corresponding to glottal closure instants
 
-select filteredID
-To PointProcess (zeroes): 1, 0, 1
-ppID = selected("PointProcess")
+selectObject: filter
+pp = To PointProcess (zeroes): 1, 0, 1
 
 ## initialize object for SOE values
 
@@ -96,12 +88,12 @@ for i from 1 to .numFrames
 
 	## otherwise calculate slope around the zero crossings
 
-		select filteredID
+		selectObject: filter
 		samp = Get sample number from time: zc
 		numer = 0
 		denom = 0
 		for theta from 1 to 5
-		  if samp + theta < size(z#)
+		  if samp + theta < size(z#) & samp - theta > 0
   			numer = numer + theta * (z#[samp+theta] - z#[samp-theta])
   			denom = denom + 2 * theta^2
   		else
@@ -111,18 +103,13 @@ for i from 1 to .numFrames
 		endfor
 		.soe#[i] = numer / denom
 		.soe#[i] = -.soe#[i]
-		select ppID
+		selectObject: pp
 	endif
 endfor
 
 ## clean up
 
-select snippetID
-plus filteredID
-plus filtMatID
-plus ppID
-Remove
-
-select soundID
+removeObject: snippet, filter, filtMat, pp
+selectObject: snd
 
 endproc
