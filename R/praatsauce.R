@@ -210,9 +210,9 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
   praatsauceLocation <- paste0('"', praatsauceLocation, '"')
   paramsLoc <- file.path(outputDir, 'params.csv')
   paramsLoc <- paste0('"', paramsLoc, '"')
-  syscall <- paste(praatLocation, praatsauceLocation, paramsLoc)
-  # system(syscall)
-  sys::exec_wait(syscall)
+  syscall <- paste(praatLocation, '--run', praatsauceLocation, paramsLoc)
+  system(syscall)
+  # sys::exec_wait(syscall)
 
   out <- praatsauce_load(file.path(outputDir, outputFile), useTextGrid, emuDB,
                          na_output)
