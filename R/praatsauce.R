@@ -131,6 +131,9 @@
 #' on Windows, or similar locations on a Unix-alike OS. You can test whether
 #' this is correct by calling `system(praat)` and checking if a Praat window
 #' opens.
+#' @param os String giving the name of the operating system (either `Windows`,
+#' `Mac`, or `Linux`). Default is `NULL`. If a string is given, the function
+#' will attempt to find Praat in the default location for your operating system.
 #' @param recursive Logical; should sound files in subdirectories of
 #' `inputDir` be analyzed? Default is `FALSE`.
 #' @param na_output How should infelicitous values be coded? Default is `NA`.
@@ -167,7 +170,7 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
                        formantRead = FALSE, formantReadDir = NULL,
                        useTextGrid = FALSE, tgDir = NULL, filelist = 0,
                        intervalTier = 1, includeTheseLabels = '^(?!\\s*$).+',
-                       praatLocation = 'praat', recursive = FALSE,
+                       praatLocation = 'praat', os = NULL, recursive = FALSE,
                        na_output = NA) {
 
   if (class(inputDir) == 'emuDBhandle') {
@@ -210,6 +213,31 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
   praatsauceLocation <- paste0('"', praatsauceLocation, '"')
   paramsLoc <- file.path(outputDir, 'params.csv')
   paramsLoc <- paste0('"', paramsLoc, '"')
+
+  if (!is.null(os)) {
+    if (os == 'Windows') {
+      if (file.exists('"C:/Program Files/Praat.exe"')) {
+        praatLocation <- '"C:/Program Files/Praat.exe"'
+      } else {
+        stop('Could not find Praat, please specify location with praatLocation')
+      }
+    } else if (os == 'Mac') {
+      if (file.exists('/Applications/Praat.app/Contents/MacOS/Praat')) {
+        praatLocation <- '/Applications/Praat.app/Contents/MacOS/Praat'
+      } else {
+        stop('Could not find Praat, please specify location with praatLocation')
+      }
+    } else if (os == 'Linux') {
+      if (file.exists('/usr/bin/praat')) {
+        praatLocation <- '/usr/bin/praat'
+      } else {
+        stop('Could not find Praat, please specify location with praatLocation')
+      }
+    } else {
+      stop('The os parameter has to be either Windows, Mac, or Linux')
+    }
+  }
+
   syscall <- paste(praatLocation, '--run', praatsauceLocation, paramsLoc)
   system(syscall)
   # sys::exec_wait(syscall)
