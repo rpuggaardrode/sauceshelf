@@ -72,7 +72,7 @@
 #' voicing value should be disfavored in terms of fractional strength in
 #' the {auto|cross} correlation function. Default is `0.14`.
 #' @param killOctaveJumps Boolean; should Praat's `Kill octave jumps` function
-#' be run on the pitch track? Default is `TRUE`.
+#' be run on the pitch track? Default is `FALSE`.
 #' @param maxNumFormants Integer giving the maximum number of formants to
 #' estimate. Default is `5`.
 #' @param preEmphFrom Numeric giving the frequency floor for pre-emphasis.
@@ -160,7 +160,7 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
                        pitchWindowShape = 'hanning', pitchMaxNoCandidates = 15,
                        silenceThreshold = 0.01, voicingThreshold = NULL,
                        octaveCost = NULL, octaveJumpCost = 0.35,
-                       voicedUnvoicedCost = 0.14, killOctaveJumps = TRUE,
+                       voicedUnvoicedCost = 0.14, killOctaveJumps = FALSE,
                        maxNumFormants = 5, preEmphFrom = 50, f1ref = 500,
                        f2ref = 1500, f3ref = 2500, maxFormantHz = 5000,
                        pitchSynchronous = FALSE, cppTrendType = 'exponential',
@@ -177,8 +177,6 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
     inputDir <- inputDir$basePath
     recursive <- TRUE
     emuDB <- TRUE
-  } else {
-    emuDB <- FALSE
   }
 
   if (length(filelist) > 1) {
@@ -240,7 +238,6 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
 
   syscall <- paste(praatLocation, '--run', praatsauceLocation, paramsLoc)
   system(syscall)
-  # sys::exec_wait(syscall)
 
   out <- praatsauce_load(file.path(outputDir, outputFile), useTextGrid, emuDB,
                          na_output)

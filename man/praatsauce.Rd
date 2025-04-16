@@ -35,7 +35,7 @@ praatsauce(
   octaveCost = NULL,
   octaveJumpCost = 0.35,
   voicedUnvoicedCost = 0.14,
-  killOctaveJumps = TRUE,
+  killOctaveJumps = FALSE,
   maxNumFormants = 5,
   preEmphFrom = 50,
   f1ref = 500,
@@ -59,6 +59,7 @@ praatsauce(
   intervalTier = 1,
   includeTheseLabels = "^(?!\\\\s*$).+",
   praatLocation = "praat",
+  os = NULL,
   recursive = FALSE,
   na_output = NA
 )
@@ -163,7 +164,7 @@ voicing value should be disfavored in terms of fractional strength in
 the {auto|cross} correlation function. Default is `0.14`.}
 
 \item{killOctaveJumps}{Boolean; should Praat's `Kill octave jumps` function
-be run on the pitch track? Default is `TRUE`.}
+be run on the pitch track? Default is `FALSE`.}
 
 \item{maxNumFormants}{Integer giving the maximum number of formants to
 estimate. Default is `5`.}
@@ -245,6 +246,10 @@ Default is `praat`, which will be correct if Praat is stored in `System32`
 on Windows, or similar locations on a Unix-alike OS. You can test whether
 this is correct by calling `system(praat)` and checking if a Praat window
 opens.}
+
+\item{os}{String giving the name of the operating system (either `Windows`,
+`Mac`, or `Linux`). Default is `NULL`. If a string is given, the function
+will attempt to find Praat in the default location for your operating system.}
 
 \item{recursive}{Logical; should sound files in subdirectories of
 `inputDir` be analyzed? Default is `FALSE`.}

@@ -37,6 +37,7 @@ get_pitch <- function(filelist, inputDir,
              by = intervalFixed)
     tmp <- data.frame(file = rep(f, length(f0)),
                       t = t, f0 = f0)
+    tmp$f0[tmp$f0 == 0] <- NA
     if (!is.null(praatsauce_output)) {
       psFile <- praatsauce_output[praatsauce_output$file == f,]
       tmp <- tmp[1:nrow(psFile),]

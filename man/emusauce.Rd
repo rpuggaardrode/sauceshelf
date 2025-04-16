@@ -23,7 +23,8 @@ emusauce(
   windowLength = 0.025,
   maxNumFormants = 5,
   bw_hawksMiller = TRUE,
-  praatsauce_output = NULL
+  recursive = FALSE,
+  existing_output = NULL
 )
 }
 \arguments{
@@ -76,8 +77,12 @@ estimate. Default is `5`.}
 Hawks-Miller formula? Default is `TRUE`. If `FALSE`, raw bandwidths are
 returned.}
 
-\item{praatsauce_output}{Optional data frame containing existing measures
-from PraatSauce.}
+\item{recursive}{Logical; should sound files in subdirectories of
+`inputDir` be analyzed? Default is `FALSE`.}
+
+\item{existing_output}{Optional data frame containing existing measures
+from e.g. PraatSauce. Can come from anywhere, including VoiceSauce, but
+should adhere to the column naming conventions from PraatSauce output.}
 }
 \value{
 Data frame with the specified measures.

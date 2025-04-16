@@ -34,8 +34,11 @@
 #' @param bw_hawksMiller Boolean; should bandwidths be estimated using the
 #' Hawks-Miller formula? Default is `TRUE`. If `FALSE`, raw bandwidths are
 #' returned.
-#' @param praatsauce_output Optional data frame containing existing measures
-#' from PraatSauce.
+#' @param recursive Logical; should sound files in subdirectories of
+#' `inputDir` be analyzed? Default is `FALSE`.
+#' @param existing_output Optional data frame containing existing measures
+#' from e.g. PraatSauce. Can come from anywhere, including VoiceSauce, but
+#' should adhere to the column naming conventions from PraatSauce output.
 #'
 #' @return Data frame with the specified measures.
 #' @export
@@ -50,8 +53,13 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
                      intensity = TRUE, soe = TRUE,
                      intervalFixed = 0.005, f0min = 50, f0max = 300,
                      windowLength = 0.025, maxNumFormants = 5,
-                     bw_hawksMiller = TRUE,
-                     praatsauce_output = NULL) {
+                     bw_hawksMiller = TRUE, recursive = FALSE,
+                     existing_output = NULL) {
+
+  if (class(inputDir) == 'emuDBhandle') {
+    inputDir <- inputDir$basePath
+    recursive <- TRUE
+  }
 
   pitchReq <- FALSE
   fmtReq <- FALSE
@@ -68,10 +76,14 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
 
   if (maxNumFormants < 4) stop('maxNumFormants should be 4 or higher')
 
-  fls <- list.files(inputDir, pattern='*.wav')
-  if (!is.null(praatsauce_output)) {
-    beginTime <- praatsauce_output$t[1]
-    out <- praatsauce_output
+  if (recursive) {
+    fls <- list.files(inputDir, pattern='*.wav', recursive=TRUE)
+  } else {
+    fls <- list.files(inputDir, pattern='*.wav')
+  }
+  if (!is.null(existing_output)) {
+    beginTime <- existing_output$t[1]
+    out <- existing_output
     outExists <- TRUE
   } else {
     beginTime <- 0
@@ -79,13 +91,13 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
   }
 
   if (pitchReq) {
-    if (!'f0' %in% colnames(praatsauce_output)) {
+    if (!'f0' %in% colnames(existing_output)) {
       f0 <- get_pitch(fls, inputDir, intervalFixed, f0min, f0max,
-                      beginTime, praatsauce_output)
+                      beginTime, existing_output)
     } else {
-      f0 <- data.frame(file = praatsauce_output$file,
-                       t = praatsauce_output$t,
-                       f0 = praatsauce_output$f0)
+      f0 <- data.frame(file = existing_output$file,
+                       t = existing_output$t,
+                       f0 = existing_output$f0)
     }
     if (pitch) {
       if (outExists) {
@@ -98,16 +110,16 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
   }
 
   if (fmtReq) {
-    if (!'F1' %in% colnames(praatsauce_output)) {
+    if (!'F1' %in% colnames(existing_output)) {
       fmt <- get_formants(fls, inputDir, intervalFixed,  windowLength,
                           !bw_hawksMiller, maxNumFormants,
-                          beginTime, praatsauce_output)
+                          beginTime, existing_output)
     } else {
-      fmt <- data.frame(file = praatsauce_output$file,
-                        t = praatsauce_output$t,
-                        F1 = praatsauce_output$F1,
-                        F2 = praatsauce_output$F2,
-                        F3 = praatsauce_output$F3)
+      fmt <- data.frame(file = existing_output$file,
+                        t = existing_output$t,
+                        F1 = existing_output$F1,
+                        F2 = existing_output$F2,
+                        F3 = existing_output$F3)
     }
     if (formant) {
       if (outExists) {
@@ -140,9 +152,41 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
   }
 
   if (specReq) {
-    spec <- get_spectralMeasures(fls, inputDir, f0, fmt, bwdf,
-                                 intervalFixed, windowLength, slope,
-                                 slopeUncorrected, beginTime, praatsauce_output)
+    if (!'H1H2c' %in% colnames(existing_output)) {
+      spec <- get_spectralMeasures(fls, inputDir, f0, fmt, bwdf,
+                                   intervalFixed, windowLength, slope,
+                                   slopeUncorrected, beginTime, existing_output)
+    } else {
+      spec <- data.frame(file = existing_output$file,
+                        t = existing_output$t,
+                        H1H2c = existing_output$H1H2c,
+                        H2H4c = existing_output$H2H4c,
+                        H1A1c = existing_output$H1A1c,
+                        H1A2c = existing_output$H1A2c,
+                        H1A3c = existing_output$H1A3c,
+                        H2KH5Ku = existing_output$H2KH5Ku)
+      if ('H1c' %in% colnames(existing_output)) {
+        spec$H1c <- existing_output$H1c; spec$H2c <- existing_output$H2c
+        spec$H4c <- existing_output$H4c; spec$H4c <- existing_output$H4c
+        spec$A1c <- existing_output$A1c; spec$A2c <- existing_output$A2c
+        spec$A3c <- existing_output$A3c; spec$H2Ku <- existing_output$H2Ku
+        spec$H5Ku <- existing_output$H5Ku
+      }
+      if ('H1u' %in% colnames(existing_output)) {
+        spec$H1u <- existing_output$H1u; spec$H2u <- existing_output$H2u
+        spec$H4u <- existing_output$H4u; spec$H4u <- existing_output$H4u
+        spec$A1u <- existing_output$A1u; spec$A2u <- existing_output$A2u
+        spec$A3u <- existing_output$A3u
+      }
+      if ('H1H2u' %in% colnames(existing_output)) {
+        spec$H1H2u <- existing_output$H1H2u
+        spec$H2H4u <- existing_output$H2H4u
+        spec$H1A1u <- existing_output$H1A1u
+        spec$H1A2u <- existing_output$H1A2u
+        spec$H1A3u <- existing_output$H1A3u
+      }
+    }
+
     if (harmonicAmplitude) {
       if (outExists) {
         out$H1c <- spec$H1c; out$H2c <- spec$H2c; out$H4c <- spec$H4c
@@ -191,8 +235,14 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
   }
 
   if (cpp) {
-    cpp <- get_CPP(fls, inputDir, windowLength, f0min, f0max, intervalFixed,
-                   beginTime, praatsauce_output)
+    if (!'CPP' %in% colnames(existing_output)) {
+      cpp <- get_CPP(fls, inputDir, windowLength, f0min, f0max, intervalFixed,
+                     beginTime, existing_output)
+    } else {
+      cpp <- data.frame(file = existing_output$file,
+                        t = existing_output$t,
+                        CPP = existing_output$CPP)
+    }
     if (outExists) {
       out$CPP <- cpp$CPP
     } else {
@@ -202,14 +252,29 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
   }
 
   if (hnr) {
-    hnr05 <- get_HNR(fls, inputDir, 500, f0min, f0max, intervalFixed,
-                     beginTime, out, praatsauce_output)
-    hnr15 <- get_HNR(fls, inputDir, 1500, f0min, f0max, intervalFixed,
-                     beginTime, out, praatsauce_output)
-    hnr25 <- get_HNR(fls, inputDir, 2500, f0min, f0max, intervalFixed,
-                     beginTime, out, praatsauce_output)
-    hnr35 <- get_HNR(fls, inputDir, 3500, f0min, f0max, intervalFixed,
-                     beginTime, out, praatsauce_output)
+    if (!'HNR05' %in% colnames(existing_output)) {
+      hnr05 <- get_HNR(fls, inputDir, 500, f0min, f0max, intervalFixed,
+                       beginTime, out, existing_output)
+      hnr15 <- get_HNR(fls, inputDir, 1500, f0min, f0max, intervalFixed,
+                       beginTime, out, existing_output)
+      hnr25 <- get_HNR(fls, inputDir, 2500, f0min, f0max, intervalFixed,
+                       beginTime, out, existing_output)
+      hnr35 <- get_HNR(fls, inputDir, 3500, f0min, f0max, intervalFixed,
+                       beginTime, out, existing_output)
+    } else {
+      hnr05 <- data.frame(file = existing_output$file,
+                        t = existing_output$t,
+                        HNR500 = existing_output$HNR05)
+      hnr15 <- data.frame(file = existing_output$file,
+                          t = existing_output$t,
+                          HNR1500 = existing_output$HNR15)
+      hnr25 <- data.frame(file = existing_output$file,
+                          t = existing_output$t,
+                          HNR2500 = existing_output$HNR25)
+      hnr35 <- data.frame(file = existing_output$file,
+                          t = existing_output$t,
+                          HNR3500 = existing_output$HNR35)
+    }
     if (outExists) {
       out$HNR05 <- hnr05$HNR500; out$HNR15 <- hnr15$HNR1500
       out$HNR25 <- hnr25$HNR2500; out$HNR35 <- hnr35$HNR3500
@@ -222,8 +287,14 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
   }
 
   if (intensity) {
-    rms <- get_intensity(fls, inputDir, intervalFixed, f0min,
-                         beginTime, praatsauce_output)
+    if (!'intensity' %in% colnames(existing_output)) {
+      rms <- get_intensity(fls, inputDir, intervalFixed, f0min,
+                           beginTime, existing_output)
+    } else {
+      rms <- data.frame(file = existing_output$file,
+                        t = existing_output$t,
+                        intensity = existing_output$intensity)
+    }
     if (outExists) {
       out$intensity <- rms$intensity
     } else {
@@ -233,8 +304,14 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
   }
 
   if (soe) {
-    soe <- get_SOE(fls, inputDir, intervalFixed, beginTime, f0min, f0max,
-                   f0, praatsauce_output)
+    if (!'soe' %in% colnames(existing_output)) {
+      soe <- get_SOE(fls, inputDir, intervalFixed, beginTime, f0min, f0max,
+                     f0, existing_output)
+    } else {
+      soe <- data.frame(file = existing_output$file,
+                        t = existing_output$t,
+                        soe = existing_output$soe)
+    }
     if (outExists) {
       out$soe <- soe$soe
     } else {

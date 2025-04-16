@@ -64,6 +64,8 @@ get_CPP <- function(filelist, inputDir, windowLength = 0.025, f0min = 50,
                       t = t, CPP = cpptmp)
     if (!is.null(praatsauce_output)) {
       psFile <- praatsauce_output[praatsauce_output$file == f,]
+      pst1 <- min(psFile$t)
+      tmp <- tmp[-which(tmp$t < pst1),]
       tmp <- tmp[1:nrow(psFile),]
     }
     out <- rbind(out, tmp)

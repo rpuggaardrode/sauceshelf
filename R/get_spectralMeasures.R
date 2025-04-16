@@ -57,6 +57,7 @@ get_spectralMeasures <- function(filelist, inputDir, f0, fmt, bw,
              attr(specObj, 'endRecord') * intervalFixed,
              by = intervalFixed)
     freqRange <- seq(0, sr/2, length.out=freqSteps)
+    oneFreqStep <- freqRange[2] - freqRange[1]
     f0tmp <- f0[which(f0$file==f),'f0']
     fmttmp <- fmt[which(fmt$file==f),]
     bwtmp <- bw[which(bw$file==f),]
@@ -64,8 +65,8 @@ get_spectralMeasures <- function(filelist, inputDir, f0, fmt, bw,
     H1u <- H2u <- H4u <- A1u <- A2u <- A3u <- H2Ku <- H5Ku <- rep(NA, nFrames)
     for (i in 1:nFrames) {
       if (!is.na(f0tmp[i]) & f0tmp[i] > 0) {
-        if ((f0tmp[i] * 0.1) * 2 < specbw + 5) {
-          mult <- 0.2
+        if ((f0tmp[i] * 0.1) * 2 < oneFreqStep) {
+          mult <- oneFreqStep / f0tmp[i]
         } else {
           mult <- 0.1
         }

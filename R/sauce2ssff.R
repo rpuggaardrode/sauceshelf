@@ -13,6 +13,12 @@
 #' # not right now
 sauce2ssff <- function(emuDBhandle, sauce) {
 
+  session <- gsub('/.*', '', sauce$file, perl=T)
+  bundle <- gsub('.*/', '', sauce$file, perl=T)
+  bundle <- gsub('.wav', '', bundle)
+  sauce <- sauce[,-1]
+  sauce <- cbind(session, bundle, sauce)
+
   ssffDir <- paste0(tempdir(), '/ssff/')
   dir.create(ssffDir)
 

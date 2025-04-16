@@ -34,13 +34,5 @@ praatsauce_load <- function(fileLoc, useTextGrid = FALSE, emuDB = FALSE,
     out$HNR35[out$HNR35 == -200] <- na_output
   }
 
-  if (emuDB) {
-    session <- gsub('/.*', '', out$file, perl=T)
-    bundle <- gsub('.*/', '', out$file, perl=T)
-    bundle <- gsub('.wav', '', bundle)
-    out <- out[,-1]
-    out <- cbind(session, bundle, out)
-  }
-
   return(out)
 }
