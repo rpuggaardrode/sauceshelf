@@ -82,6 +82,7 @@ mixedsauce <- function(inputDir, pitch = 'praat', formant = 'praat', bw = 'emu',
     dir.create(ro)
     tmp <- reapeR::reaper_bulk(inputDir, output = 'pitch', f0min = f0min,
                        f0max = f0max, exePath = reaperPath,
+                       interval = intervalFixed,
                        praat_output = TRUE, praat_output_dir = ro)
     pitchRead <- TRUE
     pitchReadDir <- ro
