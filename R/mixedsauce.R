@@ -56,7 +56,7 @@
 #' @param reaperPath String giving the path to a REAPER installation on the
 #' computer. Default is `NULL`; it is assumed that REAPER is installed along
 #' with the `reapeR` library.
-#' @param ...
+#' @param ... Further arguments passed to [praatsauce].
 #'
 #' @return Data frame with the specified measures.
 #' @export

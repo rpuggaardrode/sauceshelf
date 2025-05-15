@@ -101,7 +101,7 @@ returned.}
 computer. Default is `NULL`; it is assumed that REAPER is installed along
 with the `reapeR` library.}
 
-\item{...}{}
+\item{...}{Further arguments passed to [praatsauce].}
 }
 \value{
 Data frame with the specified measures.

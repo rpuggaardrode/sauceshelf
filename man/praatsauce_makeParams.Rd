@@ -140,24 +140,24 @@ candidates to estimate. Default is `15`.}
 pitch in terms of amplitude relative to the global maximum. Default is `0.01`.}
 
 \item{voicingThreshold}{Numeric giving the voicing threshold when estimating
-pitch in terms of fractional strength in the {auto|cross}correlation function.
+pitch in terms of fractional strength in the \{auto|cross\}correlation function.
 Default is `NULL`, in which case the value depends on `pitchMethod`:
 `0.5` is used with `pitchMethod='autocorrelation'` and `0.55` is used with
 `pitchMethod='crosscorrelation'`.}
 
 \item{octaveCost}{Numeric specifying how much high frequency pitch candidates
-should be favored in terms of fractional strength in the {auto|cross}
+should be favored in terms of fractional strength in the \{auto|cross\}
 correlation function. Default is `NULL`, in which case the value depends on
 `pitchMethod`: `0.055` is used with `pitchMethod='autocorrelation'` and
 `0.01` is used with `pitchMethod='crosscorrelation`.}
 
 \item{octaveJumpCost}{Numeric specifying how much pitch changes should be
-disfavored in terms of fractional strength in the {auto|cross} correlation
+disfavored in terms of fractional strength in the \{auto|cross\} correlation
 function. Default is `0.35`.}
 
 \item{voicedUnvoicedCost}{Numeric specifying how much transitions in
 voicing value should be disfavored in terms of fractional strength in
-the {auto|cross} correlation function. Default is `0.14`.}
+the \{auto|cross\} correlation function. Default is `0.14`.}
 
 \item{killOctaveJumps}{Boolean; should Praat's `Kill octave jumps` function
 be run on the pitch track? Default is `TRUE`.}

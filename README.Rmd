@@ -1,0 +1,57 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# sauceshelf
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The `sauceshelf` library provides a framework for estimating and comparing voice quality measures from various different sources. It can serve as a wrapper for (a recently overhauled version of) the [PraatSauce](https://kirbyj.github.io/praatsauce) suite of [Praat](https://www.fon.hum.uva.nl/praat/) scripts for handily estimating pitch, formants, harmonic amplitudes and spectral slope, harmonics-to-noise ratio, cepstral peak prominence, root-mean-squared intensity, and strength of harmonic excitation. Methods are also provided for estimating these measures in R, relying on signal processing functions in the [emuverse](https://ips-lmu.github.io/EMU.html), and for mixing and matching different estimation procedures. Finally, methods are provided for loading in measures from [VoiceSauce](https://www.phonetics.ucla.edu/voicesauce/) as a well-formatted data frame, and for converting measures to SSFF files (again, useful for users working within the "emuverse"). 
+
+`sauceshelf` is mainly aimed at a workflow where measures are estimated for entire sound files prior to further analysis. PraatSauce is somewhat more fully-featured than the other methods in `sauceshelf` in allowing users to estimate voice quality in chunks of sound files based on `.TextGrid` labels.
+
+`sauceshelf` is under development. If you run into issues, you're very welcome to report them, either here on GitHub or via email to r.puggaard at phonetik.uni-muenchen.de
+
+## Installation
+
+You can install the development version of sauceshelf from [GitHub](https://github.com/) with:
+
+``` {r, eval = FALSE}
+# install.packages('devtools')
+devtools::install_github('rpuggaardrode/sauceshelf')
+```
+
+## Calling PraatSauce
+
+PraatSauce can be called with the `praatsauce()` function, which is fully documented (see `?praatsauce`). If this doesn't work at first, arguments are available for setting your operating system `os`, which will try to resolve the location of Praat on your machine, or for explicitly setting this with the `praatLocation` argument. The purpose of other arguments are described in detail [here](https://kirbyj.github.io/praatsauce).
+
+A simple call to `praatsauce()` looks like this:
+
+```{r}
+library(sauceshelf)
+
+datapath <- system.file('extdata/audio', package='sauceshelf')
+sauce <- praatsauce(datapath)
+head(sauce)
+```
+
+The `mixedsauce()` function will combine signal processing in Praat and R. By default, pitch, formants, CPP, HNR, and intensity are estimated in Praat, while harmonic amplitudes, spectral slope, formant bandwidths, and SoE are estimated in R:
+
+```{r}
+sauce <- mixedsauce(datapath)
+head(sauce)
+```
+
+`mixedsauce()` makes it easy to re-estimate spectral slope and harmonic amplitudes if you've used other software to correct pitch and formants, e.g. programmatically in R, or using tools like [PitchMendR](https://github.com/tsostarics/PitchMendR).

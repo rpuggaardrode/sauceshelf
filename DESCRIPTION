@@ -1,26 +1,31 @@
 Package: sauceshelf
 Type: Package
-Title: Voice quality measures in Praat and R
-Version: 0.0.0
+Title: Analyze voice quality with various source algorithms
+Version: 0.0.1
 Authors@R: 
     person("Rasmus", "Puggaard-Rode", 
     email = "r.puggaard@phonetik.uni-muenchen.de", 
     role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-4522-9987"))
-Description: Calculate pitch, intensity, harmonic amplitudes, spectral slope, formants and various other measures of voice quality from audio files.
+Description: Calculate pitch, intensity, harmonic amplitudes, spectral slope, 
+  formants and various other measures of voice quality from audio files using
+  'Praat', R, and 'REAPER'.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rpuggaardrode/sauceshelf
 BugReports: https://github.com/rpuggaardrode/sauceshelf/issues
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Imports: 
     emuR,
     scales,
     signal,
     soundgen,
     stats,
-    sys,
     tuneR,
     utils,
     wrassp
+Suggests:
+    reapeR
+Remotes:
+    rpuggaardrode/reapeR

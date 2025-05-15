@@ -56,21 +56,21 @@
 #' @param silenceThreshold Numeric giving the silence threshold when estimating
 #' pitch in terms of amplitude relative to the global maximum. Default is `0.01`.
 #' @param voicingThreshold Numeric giving the voicing threshold when estimating
-#' pitch in terms of fractional strength in the {auto|cross}correlation function.
+#' pitch in terms of fractional strength in the \{auto|cross\}correlation function.
 #' Default is `NULL`, in which case the value depends on `pitchMethod`:
 #' `0.5` is used with `pitchMethod='autocorrelation'` and `0.55` is used with
 #' `pitchMethod='crosscorrelation'`.
 #' @param octaveCost Numeric specifying how much high frequency pitch candidates
-#' should be favored in terms of fractional strength in the {auto|cross}
+#' should be favored in terms of fractional strength in the \{auto|cross\}
 #' correlation function. Default is `NULL`, in which case the value depends on
 #' `pitchMethod`: `0.055` is used with `pitchMethod='autocorrelation'` and
 #' `0.01` is used with `pitchMethod='crosscorrelation`.
 #' @param octaveJumpCost Numeric specifying how much pitch changes should be
-#' disfavored in terms of fractional strength in the {auto|cross} correlation
+#' disfavored in terms of fractional strength in the \{auto|cross\} correlation
 #' function. Default is `0.35`.
 #' @param voicedUnvoicedCost Numeric specifying how much transitions in
 #' voicing value should be disfavored in terms of fractional strength in
-#' the {auto|cross} correlation function. Default is `0.14`.
+#' the \{auto|cross\} correlation function. Default is `0.14`.
 #' @param killOctaveJumps Boolean; should Praat's `Kill octave jumps` function
 #' be run on the pitch track? Default is `TRUE`.
 #' @param maxNumFormants Integer giving the maximum number of formants to
