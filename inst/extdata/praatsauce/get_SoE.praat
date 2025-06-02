@@ -23,7 +23,11 @@ else
   newFS = .fs
 endif
 
-meanPitchSamp = newFS / .meanF0
+if .meanF0 = undefined
+  meanPitchSamp = newFS / 150
+else
+  meanPitchSamp = newFS / .meanF0
+endif
 windSamp = round (2 * (meanPitchSamp / 1.5) + 1)
 
 ## get differenced signal
@@ -90,6 +94,7 @@ for i from 1 to .numFrames
 
 		selectObject: filter
 		samp = Get sample number from time: zc
+		samp = round(samp)
 		numer = 0
 		denom = 0
 		for theta from 1 to 5
