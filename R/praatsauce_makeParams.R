@@ -196,7 +196,7 @@ praatsauce_makeParams <- function(inputDir, outputDir = tempdir(),
                  'cppTrendType', 'cppFast', 'pitchSave', 'pitchSaveDir',
                  'pitchRead', 'pitchReadDir', 'formantSave', 'formantSaveDir',
                  'formantRead', 'formantReadDir', 'useTextGrid', 'tgDir',
-                 'filelist', 'intervalTier', 'includeTheseLabels'),
+                 'filelist', 'intervalTier', 'includeTheseLabels', 'verbose'),
     input = c(inputDir, outputDir, outputFile, channel,
               as.numeric(intervalEquidistant), as.numeric(intervalFixed),
               as.numeric(pitch),
@@ -217,7 +217,7 @@ praatsauce_makeParams <- function(inputDir, outputDir = tempdir(),
               pitchReadDir, as.numeric(formantSave), formantSaveDir,
               as.numeric(formantRead), formantReadDir,
               as.numeric(useTextGrid), tgDir,
-              filelist, intervalTier, includeTheseLabels)
+              filelist, intervalTier, includeTheseLabels, 0)
   )
 
   utils::write.csv(p, file=fileLoc, row.names=F, quote=F)

@@ -23,6 +23,9 @@ else
   newFS = .fs
 endif
 
+# if there are no pitch values in the intervals, use some reasonable value
+# to avoid erroring out
+
 if .meanF0 = undefined
   meanPitchSamp = newFS / 150
 else
