@@ -19,5 +19,20 @@ Used for side effects.
 Converts sauce measures to SSFF files and adds them to a loaded EMU database.
 }
 \examples{
-# not right now
+\donttest{
+# Create demo data and load demo database
+emuR::create_emuRdemoData(tempdir())
+db_path <- paste0(tempdir(), '/emuR_demoData/ae_emuDB')
+db <- emuR::load_emuDB(db_path)
+
+# Which SSFF tracks are available?
+emuR <- emuR::list_ssffTrackDefinitions(db)
+
+# Get sauce
+sauce <- praatsauce(db)
+sauce2ssff(db, sauce)
+
+# Did it work?
+emuR::list_ssffTrackDefinitions(db)
+}
 }

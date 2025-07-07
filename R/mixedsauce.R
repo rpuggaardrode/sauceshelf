@@ -117,6 +117,7 @@ mixedsauce <- function(inputDir, pitch = 'praat', formant = 'praat', bw = 'emu',
                      maxNumFormants = maxNumFormants,
                      bwHawksMiller = bw_hawksMiller, pitchRead = pitchRead,
                      pitchReadDir = pitchReadDir, recursive = recursive, ...)
+    ps$t <- as.numeric(ps$t)
   } else {
     ps <- NULL
   }

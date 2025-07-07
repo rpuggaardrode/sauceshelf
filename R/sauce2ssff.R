@@ -10,7 +10,22 @@
 #' @export
 #'
 #' @examples
-#' # not right now
+#' \donttest{
+#' # Create demo data and load demo database
+#' emuR::create_emuRdemoData(tempdir())
+#' db_path <- paste0(tempdir(), '/emuR_demoData/ae_emuDB')
+#' db <- emuR::load_emuDB(db_path)
+#'
+#' # Which SSFF tracks are available?
+#' emuR <- emuR::list_ssffTrackDefinitions(db)
+#'
+#' # Get sauce
+#' sauce <- praatsauce(db)
+#' sauce2ssff(db, sauce)
+#'
+#' # Did it work?
+#' emuR::list_ssffTrackDefinitions(db)
+#' }
 sauce2ssff <- function(emuDBhandle, sauce) {
 
   session <- gsub('/.*', '', sauce$file, perl=T)
@@ -33,9 +48,10 @@ sauce2ssff <- function(emuDBhandle, sauce) {
 
     for (b in bundles) {
       tmp <- session_sauce[which(session_sauce$bundle == b),]
+      tmp$t <- as.numeric(tmp$t)
 
       ado <- list()
-      attr(ado, 'sampleRate') <- 200
+      attr(ado, 'sampleRate') <- 1 / (tmp$t[2] - tmp$t[1])
       attr(ado, 'origFreq') <- 0
       attr(ado, 'startTime') <- tmp$t[1]
       attr(ado, 'endRecord') <- nrow(tmp)
@@ -69,6 +85,13 @@ sauce2ssff <- function(emuDBhandle, sauce) {
       wrassp::write.AsspDataObj(ado, file = ssffFile)
     }
 
+    if (!s %in% emuR::list_sessions(emuDBhandle)) {
+      if (gsub('_ses', '', s) %in% emuR::list_sessions(emuDBhandle)) {
+        s <- gsub('_ses', '', s)
+      } else {
+        stop(paste('Could not find session', s, 'in emuDB'))
+      }
+    }
     emuR::add_files(emuDBhandle, sessionDir, 'sauce', s)
 
   }

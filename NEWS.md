@@ -1,3 +1,8 @@
+## Version 0.0.5
+
+* Attempt to fix bug whereby the time column of PraatSauce output is sometimes interpreted as a string, causing breaking downstream issues with `mixedsauce()`, `emusauce()` and `sauce2ssff()`.
+* Added check to ensure that different session naming conventions in EMU databases are supported.
+
 ## Version 0.0.4
 
 * Copying over [fixes to the PraatSauce code](https://github.com/kirbyj/praatsauce/commit/1bf33f7252897e6f3c7fbd3b1d5be38ae3922a30)
