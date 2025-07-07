@@ -32,6 +32,7 @@ sauce2ssff <- function(emuDBhandle, sauce) {
   bundle <- gsub('.*/', '', sauce$file, perl=T)
   bundle <- gsub('.wav', '', bundle)
   sauce <- sauce[,-1]
+  for (x in 1:ncol(sauce)) sauce[,x] <- as.numeric(sauce[,x])
   sauce <- cbind(session, bundle, sauce)
 
   ssffDir <- paste0(tempdir(), '/ssff/')
@@ -48,7 +49,6 @@ sauce2ssff <- function(emuDBhandle, sauce) {
 
     for (b in bundles) {
       tmp <- session_sauce[which(session_sauce$bundle == b),]
-      tmp$t <- as.numeric(tmp$t)
 
       ado <- list()
       attr(ado, 'sampleRate') <- 1 / (tmp$t[2] - tmp$t[1])

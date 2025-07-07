@@ -1,3 +1,7 @@
+## Version 0.0.6
+
+* Check to ensure that all relevant columns are numeric when calling `sauce2ssff()`.
+
 ## Version 0.0.5
 
 * Attempt to fix bug whereby the time column of PraatSauce output is sometimes interpreted as a string, causing breaking downstream issues with `mixedsauce()`, `emusauce()` and `sauce2ssff()`.
