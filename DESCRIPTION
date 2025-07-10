@@ -18,6 +18,7 @@ BugReports: https://github.com/rpuggaardrode/sauceshelf/issues
 RoxygenNote: 7.3.2
 Imports: 
     emuR,
+    rlang,
     scales,
     signal,
     soundgen,

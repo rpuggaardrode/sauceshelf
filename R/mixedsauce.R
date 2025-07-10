@@ -74,6 +74,11 @@ mixedsauce <- function(inputDir, pitch = 'praat', formant = 'praat', bw = 'emu',
                        bw_hawksMiller = TRUE, recursive = FALSE,
                        reaperPath = NULL, ...) {
 
+  if (class(inputDir) == 'emuDBhandle') {
+    inputDir <- inputDir$basePath
+    recursive <- TRUE
+  }
+
   if (pitch == 'reaper') {
     if (system.file(package='reapeR') == '') stop(paste(
       'Please install the reapeR library using e.g.',
@@ -145,7 +150,7 @@ mixedsauce <- function(inputDir, pitch = 'praat', formant = 'praat', bw = 'emu',
                     f0max = f0max, windowLength = windowLength,
                     maxNumFormants = maxNumFormants,
                     bw_hawksMiller = bw_hawksMiller,
-                    existing_output = ps)
+                    existing_output = ps, recursive = recursive)
   } else {
     out <- ps
   }

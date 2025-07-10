@@ -1,3 +1,9 @@
+## Version 0.1.0
+
+* Added new function `sauce_hirst2pass()` for using the by-speaker two-pass procedure for estimating solid pitch floor and ceiling values before computing other measures which may rely on F0. The function is designed to work with both `praatsauce()` and `mixedsauce()`, but for now it only works for `praatsauce()`. 
+* Minor fixes to `mixedsauce()` to improve versatility.
+* Fixes to `sauce2ssff()`, including support for adding strength-of-excitation measures to databases which was inexplicably missing before, and somewhat improved handling of session names (thanks to Angelo Dian!)
+
 ## Version 0.0.6
 
 * Check to ensure that all relevant columns are numeric when calling `sauce2ssff()`.

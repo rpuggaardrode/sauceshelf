@@ -74,7 +74,7 @@ sauce2ssff <- function(emuDBhandle, sauce) {
       for (var in c('H1c', 'H2c', 'H4c', 'A1c', 'A2c', 'A3c', 'H2Ku', 'H5Ku',
                     'H1u', 'H2u', 'H4u', 'A1u', 'A2u', 'A3u', 'H1H2c', 'H2H4c',
                     'H1A1c', 'H1A2c', 'H1A3c', 'H2KH5Ku', 'H1H2u', 'H2H4u',
-                    'H1A1u', 'H1A2u', 'H1A3u', 'CPP', 'intensity')) {
+                    'H1A1u', 'H1A2u', 'H1A3u', 'CPP', 'intensity', 'soe')) {
         if (var %in% colnames(tmp)) {
           ado <- wrassp::addTrack(ado, var, tmp[[var]], format='REAL32')
         }
@@ -86,7 +86,7 @@ sauce2ssff <- function(emuDBhandle, sauce) {
     }
 
     if (!s %in% emuR::list_sessions(emuDBhandle)) {
-      if (gsub('_ses', '', s) %in% emuR::list_sessions(emuDBhandle)) {
+      if (gsub('_ses', '', s) %in% emuR::list_sessions(emuDBhandle)$name) {
         s <- gsub('_ses', '', s)
       } else {
         stop(paste('Could not find session', s, 'in emuDB'))

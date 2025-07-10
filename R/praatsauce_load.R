@@ -21,6 +21,7 @@ praatsauce_load <- function(fileLoc, useTextGrid = FALSE, emuDB = FALSE,
   out <- utils::read.table(fileLoc, sep = '\t', header=T)
   out[] <- lapply(out, gsub, pattern = '--undefined--', replacement = na_output)
   out[out==0] <- na_output
+  out$t <- as.numeric(out$t)
   if (!is.numeric(out[,2])) useTextGrid <- TRUE
   if (useTextGrid) {
     out[,3:ncol(out)] <- lapply(out[,3:ncol(out)], as.numeric)
