@@ -25,7 +25,8 @@ directory, where each directory contains the sound files of a speaker.
 Alternatively, this can be the handle of a loaded EMU database.}
 
 \item{sauceFunction}{Which function should be called to estimate voice
-quality measures? Should be either `praatsauce` (default) or `mixedsauce`.}
+quality measures? Should be either `praatsauce` (default) or `mixedsauce`,
+but currently only works properly for `praatsauce`.}
 
 \item{recursive}{Logical; should sound files in subsubdirectories of
 `inputDir` be analyzed? Default is `FALSE`.}
@@ -51,7 +52,7 @@ a speaker has been processed? Default is `TRUE`.}
 `sauceFunction`.}
 }
 \value{
-#' @return Data frame containing results of chosen measures.
+Data frame containing results of chosen measures.
 }
 \description{
 Estimates a range of voice quality measures using a two-pass procedure for

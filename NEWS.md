@@ -1,3 +1,7 @@
+## Version 0.1.1
+
+* Fix to `sauce_hirst2pass()` to make sure that the `file` column includes full path when bulk processing an EMU database.
+
 ## Version 0.1.0
 
 * Added new function `sauce_hirst2pass()` for using the by-speaker two-pass procedure for estimating solid pitch floor and ceiling values before computing other measures which may rely on F0. The function is designed to work with both `praatsauce()` and `mixedsauce()`, but for now it only works for `praatsauce()`. 

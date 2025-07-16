@@ -77,6 +77,8 @@ sauce_hirst2pass <- function(inputDir, sauceFunction = praatsauce,
     speakerArgs$f0max <- max_multiplier * q[2]
 
     secondPass <- do.call(sauceFunction, speakerArgs)
+    secondPass$file <- paste0(gsub('.*_emuDB/', '', speaker),
+                              '/', secondPass$file)
 
     if (exists('out')) {
       out <- rbind(out, secondPass)
