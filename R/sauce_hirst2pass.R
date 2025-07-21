@@ -47,8 +47,10 @@ sauce_hirst2pass <- function(inputDir, sauceFunction = praatsauce,
     procDirs <- file.path(baseDir,
                           paste0(emuR::list_sessions(inputDir)$name, '_ses'))
     recursive <- TRUE
+    emuDB <- TRUE
   } else {
     procDirs <- list.dirs(inputDir, recursive = FALSE)
+    emuDB <- FALSE
   }
 
   dotArgs <- rlang::dots_list(...)
@@ -77,8 +79,8 @@ sauce_hirst2pass <- function(inputDir, sauceFunction = praatsauce,
     speakerArgs$f0max <- max_multiplier * q[2]
 
     secondPass <- do.call(sauceFunction, speakerArgs)
-    secondPass$file <- paste0(gsub('.*_emuDB/', '', speaker),
-                              '/', secondPass$file)
+    if (emuDB) secondPass$file <- paste0(gsub('.*_emuDB/', '', speaker),
+                                         '/', secondPass$file)
 
     if (exists('out')) {
       out <- rbind(out, secondPass)

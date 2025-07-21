@@ -1,3 +1,7 @@
+## Version 0.1.2
+
+* Fixed breaking bug in `sauce_hirst2pass()` when *not* processing EMU database, introduced in version 0.1.1.
+
 ## Version 0.1.1
 
 * Fix to `sauce_hirst2pass()` to make sure that the `file` column includes full path when bulk processing an EMU database.
