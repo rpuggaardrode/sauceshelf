@@ -40,7 +40,9 @@
 sauce_hirst2pass <- function(inputDir, sauceFunction = praatsauce,
                              recursive = FALSE, firstPass_f0min = 50,
                              firstPass_f0max = 700, min_multiplier = 0.75,
-                             max_multiplier = 1.5, verbose = TRUE, ...) {
+                             max_multiplier = 1.5, verbose = TRUE,
+                             pitchSave = FALSE, pitchSaveDir = NULL,
+                             formantSave = FALSE, formantSaveDir = NULL, ...) {
 
   if (class(inputDir) == 'emuDBhandle') {
     baseDir <- inputDir$basePath
@@ -48,6 +50,20 @@ sauce_hirst2pass <- function(inputDir, sauceFunction = praatsauce,
                           paste0(emuR::list_sessions(inputDir)$name, '_ses'))
     recursive <- TRUE
     emuDB <- TRUE
+    if (pitchSave) {
+      dirStructure <- list.dirs(baseDir, recursive = TRUE,
+                                full.names = FALSE)[-1]
+      for (d in 1:length(dirStructure)) dir.create(
+        file.path(pitchSaveDir, dirStructure[d]))
+      pitchSaveDirs <- list.dirs(pitchSaveDir, recursive = FALSE)
+    }
+    if (formantSave) {
+      dirStructure <- list.dirs(inputDir, recursive = TRUE,
+                                full.names = FALSE)[-1]
+      for (d in 1:length(dirStructure)) dir.create(
+        file.path(formantSaveDir, dirStructure[d]))
+      formantSaveDirs <- list.dirs(formantSaveDir, recursive = FALSE)
+    }
   } else {
     procDirs <- list.dirs(inputDir, recursive = FALSE)
     emuDB <- FALSE
@@ -55,17 +71,26 @@ sauce_hirst2pass <- function(inputDir, sauceFunction = praatsauce,
 
   dotArgs <- rlang::dots_list(...)
 
-  for (speaker in procDirs) {
+  for (i in 1:length(procDirs)) {
+    speaker <- procDirs[i]
     fl <- list.files(speaker, pattern = '*.wav', recursive = recursive)
 
     speakerArgs <- dotArgs
     speakerArgs$inputDir <- speaker
     speakerArgs$filelist <- fl
     speakerArgs$recursive <- FALSE
+    if (pitchSave) {
+      speakerArgs$pitchSave <- TRUE
+      speakerArgs$pitchSaveDir <- pitchSaveDirs[i]
+    }
+    if (formantSave) {
+      speakerArgs$formantSave <- TRUE
+      speakerArgs$formantSaveDir <- formantSaveDirs[i]
+    }
     falseArgs <- c('formant', 'harmonicAmplitude',
                        'harmonicAmplitudeUncorrected', 'bw', 'bwHawksMiller',
                        'slope', 'slopeUncorrected', 'cpp', 'hnr', 'intensity',
-                       'soe', 'pitchSave')
+                       'soe', 'pitchSave', 'formantSave')
     pitchOnlyArgs <- speakerArgs
     pitchOnlyArgs[falseArgs] <- FALSE
     pitchOnlyArgs$f0min <- firstPass_f0min

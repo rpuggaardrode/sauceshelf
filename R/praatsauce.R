@@ -177,6 +177,18 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
     inputDir <- inputDir$basePath
     recursive <- TRUE
     emuDB <- TRUE
+    if (pitchSave) {
+      dirStructure <- list.dirs(inputDir, recursive = TRUE,
+                                full.names = FALSE)[-1]
+      for (d in 1:length(dirStructure)) dir.create(
+        file.path(pitchSaveDir, dirStructure[d]))
+    }
+    if (formantSave) {
+      dirStructure <- list.dirs(inputDir, recursive = TRUE,
+                                full.names = FALSE)[-1]
+      for (d in 1:length(dirStructure)) dir.create(
+        file.path(formantSaveDir, dirStructure[d]))
+    }
   }
 
   if (length(filelist) > 1) {

@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+* When running `praatsauce()` and `sauce_hirst2pass()` over an EMU database and saving `.Pitch` and `.Formant` objects, the directory structure of the EMU database is now emulated in the directory where those objects are written to disk. This is so they can potentially be used for re-running PraatSauce over the same EMU database.
+
 ## Version 0.1.2
 
 * Fixed breaking bug in `sauce_hirst2pass()` when *not* processing EMU database, introduced in version 0.1.1.

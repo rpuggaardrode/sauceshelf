@@ -1,7 +1,7 @@
 Package: sauceshelf
 Type: Package
 Title: Analyze voice quality with various source algorithms
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Rasmus", "Puggaard-Rode", 
     email = "r.puggaard@phonetik.uni-muenchen.de", 
