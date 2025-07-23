@@ -13,6 +13,10 @@ sauce_hirst2pass(
   min_multiplier = 0.75,
   max_multiplier = 1.5,
   verbose = TRUE,
+  pitchSave = FALSE,
+  pitchSaveDir = NULL,
+  formantSave = FALSE,
+  formantSaveDir = NULL,
   ...
 )
 }
