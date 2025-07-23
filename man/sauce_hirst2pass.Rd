@@ -52,6 +52,18 @@ value.  Default is `1.5`.}
 \item{verbose}{Logical; should a message be printed to the console whenever
 a speaker has been processed? Default is `TRUE`.}
 
+\item{pitchSave}{Boolean; should pitch files be saved to disk? Default is
+`FALSE`.}
+
+\item{pitchSaveDir}{String giving the location to use for storing pitch
+files. Default is `NULL`.}
+
+\item{formantSave}{Boolean; should formant files be saved to disk? Default
+is `FALSE`.}
+
+\item{formantSaveDir}{String giving the location to use for storing
+formant files. Default is `NULL`.}
+
 \item{...}{Further arguments passed on to the function specified by
 `sauceFunction`.}
 }

@@ -29,6 +29,14 @@
 #' value.  Default is `1.5`.
 #' @param verbose Logical; should a message be printed to the console whenever
 #' a speaker has been processed? Default is `TRUE`.
+#' @param pitchSave Boolean; should pitch files be saved to disk? Default is
+#' `FALSE`.
+#' @param pitchSaveDir String giving the location to use for storing pitch
+#' files. Default is `NULL`.
+#' @param formantSave Boolean; should formant files be saved to disk? Default
+#' is `FALSE`.
+#' @param formantSaveDir String giving the location to use for storing
+#' formant files. Default is `NULL`.
 #' @param ... Further arguments passed on to the function specified by
 #' `sauceFunction`.
 #'
