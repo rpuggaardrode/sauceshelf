@@ -4,13 +4,16 @@
 \alias{sauce2ssff}
 \title{Convert sauce measures to SSFF files}
 \usage{
-sauce2ssff(emuDBhandle, sauce)
+sauce2ssff(emuDBhandle, sauce, removeExisting = FALSE)
 }
 \arguments{
 \item{emuDBhandle}{Handle of a loaded EMU database.}
 
 \item{sauce}{Data frame containing sauce measures. This should be generated
 by running e.g. `praatsauce` on the same loaded EMU database.}
+
+\item{removeExisting}{Logical; should existing SSFF files with the `sauce`
+extension be removed from the database?}
 }
 \value{
 Used for side effects.

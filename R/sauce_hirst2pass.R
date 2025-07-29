@@ -52,7 +52,7 @@ sauce_hirst2pass <- function(inputDir, sauceFunction = praatsauce,
                              pitchSave = FALSE, pitchSaveDir = NULL,
                              formantSave = FALSE, formantSaveDir = NULL, ...) {
 
-  if (class(inputDir) == 'emuDBhandle') {
+  if (inherits(inputDir, 'emuDBhandle')) {
     baseDir <- inputDir$basePath
     procDirs <- file.path(baseDir,
                           paste0(emuR::list_sessions(inputDir)$name, '_ses'))

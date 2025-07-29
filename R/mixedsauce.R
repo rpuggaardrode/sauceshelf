@@ -74,7 +74,7 @@ mixedsauce <- function(inputDir, pitch = 'praat', formant = 'praat', bw = 'emu',
                        bw_hawksMiller = TRUE, recursive = FALSE,
                        reaperPath = NULL, ...) {
 
-  if (class(inputDir) == 'emuDBhandle') {
+  if (inherits(inputDir, 'emuDBhandle')) {
     inputDir <- inputDir$basePath
     recursive <- TRUE
   }

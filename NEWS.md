@@ -1,3 +1,9 @@
+## Version 0.1.4
+
+* Added `removeExisting` argument to `sauce2ssff()`, which removes any existing SSFF files with the `.sauce` extension before adding new ones to the EMU database.
+* Following `R_CMD_CHECK` recommendations, testing class membership is now done with `inherits()` instead of comparing the output of `class()` to a string.
+* Added check to `sauce2ssff()` to test if `emuDBhandle` actually corresponds to a loaded EMU database.
+
 ## Version 0.1.3
 
 * When running `praatsauce()` and `sauce_hirst2pass()` over an EMU database and saving `.Pitch` and `.Formant` objects, the directory structure of the EMU database is now emulated in the directory where those objects are written to disk. This is so they can potentially be used for re-running PraatSauce over the same EMU database.

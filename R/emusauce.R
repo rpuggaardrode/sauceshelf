@@ -56,7 +56,7 @@ emusauce <- function(inputDir, pitch = TRUE, formant = TRUE, bw = TRUE,
                      bw_hawksMiller = TRUE, recursive = FALSE,
                      existing_output = NULL) {
 
-  if (class(inputDir) == 'emuDBhandle') {
+  if (inherits(inputDir, 'emuDBhandle')) {
     inputDir <- inputDir$basePath
     recursive <- TRUE
   }

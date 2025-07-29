@@ -5,6 +5,8 @@
 #' @param emuDBhandle Handle of a loaded EMU database.
 #' @param sauce Data frame containing sauce measures. This should be generated
 #' by running e.g. `praatsauce` on the same loaded EMU database.
+#' @param removeExisting Logical; should existing SSFF files with the `sauce`
+#' extension be removed from the database?
 #'
 #' @return Used for side effects.
 #' @export
@@ -26,7 +28,21 @@
 #' # Did it work?
 #' emuR::list_ssffTrackDefinitions(db)
 #' }
-sauce2ssff <- function(emuDBhandle, sauce) {
+sauce2ssff <- function(emuDBhandle, sauce, removeExisting = FALSE) {
+
+  if (!inherits(emuDBhandle, 'emuDBhandle')) stop(
+    'Invalid emuDBhandle argument')
+
+  if (removeExisting) {
+    ssffTrax <- emuR::list_ssffTrackDefinitions(emuDBhandle)
+    ssffTrax <- ssffTrax[which(ssffTrax$fileExtension == 'sauce'),]
+    if (nrow(ssffTrax) > 1) {
+      for (i in 2:nrow(ssffTrax)) emuR::remove_ssffTrackDefinition(
+        emuDBhandle, ssffTrax$name[i], deleteFiles = FALSE)
+      emuR::remove_ssffTrackDefinition(emuDBhandle, ssffTrax$name[1],
+                                       deleteFiles = TRUE)
+    }
+  }
 
   session <- gsub('/.*', '', sauce$file, perl=T)
   bundle <- gsub('.*/', '', sauce$file, perl=T)

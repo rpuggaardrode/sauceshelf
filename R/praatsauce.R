@@ -173,7 +173,7 @@ praatsauce <- function(inputDir, outputDir = tempdir(), outputFile = 'out.tsv',
                        praatLocation = 'praat', os = NULL, recursive = FALSE,
                        na_output = NA) {
 
-  if (class(inputDir) == 'emuDBhandle') {
+  if (inherits(inputDir, 'emuDBhandle')) {
     inputDir <- inputDir$basePath
     recursive <- TRUE
     emuDB <- TRUE
